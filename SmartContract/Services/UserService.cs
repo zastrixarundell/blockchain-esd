@@ -4,7 +4,7 @@ namespace SmartContract.Services;
 
 public class UserService : IUserService
 {
-    private static IEnumerable<User> _requests = new List<User>();
+    private IEnumerable<User> _requests = new List<User>();
 
     public bool QueueUser(User user)
     {

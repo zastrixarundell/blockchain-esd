@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Miner", "Miner\Miner.csproj", "{E9826750-DF68-40BE-A201-651FB6D56B60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartContractTests", "SmartContractTests\SmartContractTests.csproj", "{A3AAF9EB-7D41-4B22-A84B-009F53966ECF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{E9826750-DF68-40BE-A201-651FB6D56B60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9826750-DF68-40BE-A201-651FB6D56B60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9826750-DF68-40BE-A201-651FB6D56B60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3AAF9EB-7D41-4B22-A84B-009F53966ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3AAF9EB-7D41-4B22-A84B-009F53966ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3AAF9EB-7D41-4B22-A84B-009F53966ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3AAF9EB-7D41-4B22-A84B-009F53966ECF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
