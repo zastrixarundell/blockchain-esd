@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
+using SmartContract.Services;
 
 namespace SmartContract.Controllers
 {
@@ -8,6 +9,11 @@ namespace SmartContract.Controllers
     [Route("user")]
     public class UserController : Controller
     {
+        private readonly UserService _service;
+        public UserController()
+        {
+            _service = new UserService();
+        }
 
         // POST: UserController/Create
         [HttpPost(Name = "Create user connection")]
@@ -16,7 +22,7 @@ namespace SmartContract.Controllers
             var jsonObject = new JsonObject();
             int code;
 
-            if (SmartContract.User.QueueRequest(user))
+            if (_service.QueueUser(user))
             {
                 jsonObject["status"] = "ok";
                 jsonObject["message"] = "User request added to queue.";
@@ -37,7 +43,7 @@ namespace SmartContract.Controllers
         public IActionResult Index()
         {
             var jsonObject = new JsonObject();;
-            jsonObject["users"] = JsonSerializer.SerializeToNode(SmartContract.User.Requests); 
+            jsonObject["users"] = JsonSerializer.SerializeToNode(_service.GetAll()); 
             return Ok(jsonObject.ToJsonString());
         }
     }
