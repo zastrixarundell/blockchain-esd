@@ -13,7 +13,6 @@ public class MinerChannel : ChannelBase
     private readonly IMinerService _service = new MinerService();
     
     private readonly List<Miner> _clients = new();
-    private readonly List<Miner> _connectedClients = new();
 
     protected override void Dispose()
     {
@@ -28,7 +27,7 @@ public class MinerChannel : ChannelBase
 
         protected override void Join(Miner miner, JsonObject information)
         {
-            if (_connectedClients.Contains(miner))
+            if (GetConnectedMiners().Contains(miner))
             {
                 var data = new JsonObject
                 {
@@ -42,8 +41,8 @@ public class MinerChannel : ChannelBase
                 ).Wait();
                 return;
             }
-            
-            _connectedClients.Add(miner);
+
+            miner.UUID = _service.GenerateRandomUuid();
 
             SendMessageToSocket(
                 miner.Socket,
@@ -57,7 +56,7 @@ public class MinerChannel : ChannelBase
         
         protected override void Leave(Miner miner, string? leaveReason = null)
         {
-            if (!_connectedClients.Contains(miner))
+            if (!GetConnectedMiners().Contains(miner))
             {
                 var data = new JsonObject
                 {
@@ -72,7 +71,7 @@ public class MinerChannel : ChannelBase
                 return;
             }
         
-            _connectedClients.Remove(miner);
+            _clients.Remove(miner);
 
             JsonObject jsonObject = new JsonObject
             {
@@ -87,7 +86,7 @@ public class MinerChannel : ChannelBase
 
         public override void Broadcast(string topic, string eventName, JsonObject data)
         {
-            foreach (var miner in _connectedClients)
+            foreach (var miner in GetConnectedMiners())
             {
                 SendMessageToSocket(
                     miner.Socket,
@@ -100,15 +99,15 @@ public class MinerChannel : ChannelBase
     
     // All of the cool stuff
 
-    public override IEnumerable<Miner> GetConnectedSockets()
+    public override IEnumerable<Miner> GetConnectedMiners()
     {
-        return _clients;
+        return _clients.Where(m => m.UUID != null);
     }
 
     // Driving logic for the connection / black magic
     public override async Task Listen(WebSocket socket)
     {
-        var miner = _service.CreateMiner(socket);
+        var miner = new Miner{ Socket = socket };
         
         // Socket is connected to the server. Not on the channel specifically.
         _clients.Add(miner);
@@ -167,6 +166,5 @@ public class MinerChannel : ChannelBase
             CancellationToken.None);
 
         _clients.Remove(miner);
-        _connectedClients.Remove(miner);
     }
 }

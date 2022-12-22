@@ -24,8 +24,11 @@ namespace SmartContract.Controllers
         [HttpGet("/miners")]
         public IActionResult Index()
         {
-            var jsonObject = new JsonObject();
-            jsonObject["miners"] = JsonSerializer.SerializeToNode(Manager.MinerChannel.GetConnectedSockets()); 
+            var jsonObject = new JsonObject
+            {
+                { "miners", JsonSerializer.SerializeToNode(Manager.MinerChannel.GetConnectedMiners()) }
+            };
+              
             return Ok(jsonObject.ToJsonString());
         }
 

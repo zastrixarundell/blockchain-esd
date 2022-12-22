@@ -9,9 +9,9 @@ public abstract class ChannelBase
     protected abstract void Dispose();
 
     /**
-     * Get a list of all of the connected nodes.
+     * Get a list of all of the connected miners.
      */
-    public abstract IEnumerable<Miner> GetConnectedSockets();
+    public abstract IEnumerable<Miner> GetConnectedMiners();
 
     /**
      * Main consumer function which should be put in the controller.
