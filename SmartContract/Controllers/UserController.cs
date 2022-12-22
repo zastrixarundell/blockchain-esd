@@ -8,7 +8,7 @@ namespace SmartContract.Controllers
 {
     [ApiController]
     [Route("user")]
-    public class UserController : Controller, IDisposable
+    public class UserController : Controller
     {
         // POST: UserController/Create
         [HttpPost(Name = "Create user connection")]
@@ -40,11 +40,6 @@ namespace SmartContract.Controllers
             var jsonObject = new JsonObject();;
             jsonObject["users"] = JsonSerializer.SerializeToNode(Manager.UserService.GetAll()); 
             return Ok(jsonObject.ToJsonString());
-        }
-
-        public void Dispose()
-        {
-            Manager.UserService.ClearUsers();
         }
     }
 }

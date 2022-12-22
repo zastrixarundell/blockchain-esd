@@ -22,7 +22,7 @@ public class UserControllerTest : IDisposable
 
     public void Dispose()
     {
-        _controller.Dispose();
+        Manager.UserService.ClearUsers();
     }
 
     private User GenerateUser(string id = "id", string data = "random data")
