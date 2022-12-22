@@ -4,7 +4,7 @@ using SmartContract.Channels.Bases;
 
 namespace SmartContract.Channels;
 
-public class Channel : ChannelBase
+public class MinerChannel : ChannelBase
 {
     // This logic for channels is, by idea at least, based off Elixir/Phoenix's channel mechanic for websockets.
 

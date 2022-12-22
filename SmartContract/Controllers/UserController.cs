@@ -10,8 +10,6 @@ namespace SmartContract.Controllers
     [Route("user")]
     public class UserController : Controller, IDisposable
     {
-        private static readonly IUserService Service = new UserService();
-
         // POST: UserController/Create
         [HttpPost(Name = "Create user connection")]
         public IActionResult Create(User user)
@@ -19,7 +17,7 @@ namespace SmartContract.Controllers
             var jsonObject = new JsonObject();
             int code;
 
-            if (Service.QueueUser(user))
+            if (Manager.UserService.QueueUser(user))
             {
                 jsonObject["status"] = "ok";
                 jsonObject["message"] = "User request added to queue.";
@@ -40,13 +38,13 @@ namespace SmartContract.Controllers
         public IActionResult Index()
         {
             var jsonObject = new JsonObject();;
-            jsonObject["users"] = JsonSerializer.SerializeToNode(Service.GetAll()); 
+            jsonObject["users"] = JsonSerializer.SerializeToNode(Manager.UserService.GetAll()); 
             return Ok(jsonObject.ToJsonString());
         }
 
         public void Dispose()
         {
-            Service.ClearUsers();
+            Manager.UserService.ClearUsers();
         }
     }
 }

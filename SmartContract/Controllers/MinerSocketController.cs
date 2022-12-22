@@ -8,8 +8,6 @@ namespace SmartContract.Controllers
 {
     public class MinerSocketController : ControllerBase
     {
-        private static readonly Channel Channel = new();
-
         [HttpGet(("/miners/connect/ws"))]
         public async Task Connect()
         {
@@ -20,14 +18,14 @@ namespace SmartContract.Controllers
             }
             
             using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-            await Channel.Listen(webSocket);
+            await Manager.MinerChannel.Listen(webSocket);
         }
 
         [HttpGet("/miners")]
         public IActionResult Index()
         {
             var jsonObject = new JsonObject();
-            jsonObject["miners"] = JsonSerializer.SerializeToNode(Channel.GetConnectedSockets()); 
+            jsonObject["miners"] = JsonSerializer.SerializeToNode(Manager.MinerChannel.GetConnectedSockets()); 
             return Ok(jsonObject.ToJsonString());
         }
 
@@ -38,11 +36,10 @@ namespace SmartContract.Controllers
             {
                 { "message", "Hello world!" }
             };
-            
-            Channel.Broadcast("miner", "broadcast:restful", jsonObject);
+
+            Manager.MinerChannel.Broadcast("miner", "broadcast:restful", jsonObject);
 
             return Ok();
         }
-        
     }
 }
