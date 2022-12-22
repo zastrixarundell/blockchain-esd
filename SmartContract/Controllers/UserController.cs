@@ -10,13 +10,6 @@ namespace SmartContract.Controllers
     [Route("user")]
     public class UserController : Controller
     {
-        private readonly IUserService _service;
-        
-        public UserController()
-        {
-            _service = new UserService();
-        }
-
         // POST: UserController/Create
         [HttpPost(Name = "Create user connection")]
         public IActionResult Create(User user)
@@ -24,7 +17,7 @@ namespace SmartContract.Controllers
             var jsonObject = new JsonObject();
             int code;
 
-            if (_service.QueueUser(user))
+            if (Manager.UserService.QueueUser(user))
             {
                 jsonObject["status"] = "ok";
                 jsonObject["message"] = "User request added to queue.";
@@ -45,7 +38,7 @@ namespace SmartContract.Controllers
         public IActionResult Index()
         {
             var jsonObject = new JsonObject();;
-            jsonObject["users"] = JsonSerializer.SerializeToNode(_service.GetAll()); 
+            jsonObject["users"] = JsonSerializer.SerializeToNode(Manager.UserService.GetAll()); 
             return Ok(jsonObject.ToJsonString());
         }
     }
