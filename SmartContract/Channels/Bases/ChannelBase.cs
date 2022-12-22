@@ -11,7 +11,7 @@ public abstract class ChannelBase
     /**
      * Get a list of all of the connected nodes.
      */
-    public abstract IEnumerable<WebSocket> GetConnectedSockets();
+    public abstract IEnumerable<Miner> GetConnectedSockets();
 
     /**
      * Main consumer function which should be put in the controller.
@@ -28,12 +28,12 @@ public abstract class ChannelBase
      * This does not close the websocket connection, it should just remove the websocket
      * from the current state of the server.
      */
-    protected abstract void Leave(WebSocket socket, String? leaveReason = null);
+    protected abstract void Leave(Miner miner, String? leaveReason = null);
 
     /**
      * Logic which needs to be ran on the channel when the client joins.
      */
-    protected abstract void Join(WebSocket socket, JsonObject information);
+    protected abstract void Join(Miner miner, JsonObject information);
     
     /**
      * Listen to the socket and get a WebSocketReceiveResult. This will be decoded to a
@@ -67,7 +67,8 @@ public abstract class ChannelBase
         {
             { "topic", topic },
             { "event", eventName },
-            { "data", data }
+            // For some reason it would crash if this wasn't written here
+            { "data", (JsonObject?) JsonNode.Parse(data.ToJsonString()) }
         };
     }
 }

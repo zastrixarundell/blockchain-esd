@@ -1,6 +1,8 @@
 using System.Net.WebSockets;
 using System.Text.Json.Nodes;
 using SmartContract.Channels.Bases;
+using SmartContract.Services;
+using SmartContract.Services.Interfaces;
 
 namespace SmartContract.Channels;
 
@@ -8,23 +10,25 @@ public class MinerChannel : ChannelBase
 {
     // This logic for channels is, by idea at least, based off Elixir/Phoenix's channel mechanic for websockets.
 
-    private readonly List<WebSocket> _clients = new();
-    private readonly List<WebSocket> _connectedClients = new();
+    private readonly IMinerService _service = new MinerService();
+    
+    private readonly List<Miner> _clients = new();
+    private readonly List<Miner> _connectedClients = new();
 
     protected override void Dispose()
     {
-        foreach (var client in _clients)
+        foreach (var miner in _clients)
         {
-            Leave(client);
-            client.Dispose();
+            Leave(miner);
+            miner.Socket.Dispose();
         }
     }
 
     #region Channel-specific events
 
-        protected override void Join(WebSocket socket, JsonObject information)
+        protected override void Join(Miner miner, JsonObject information)
         {
-            if (_connectedClients.Contains(socket))
+            if (_connectedClients.Contains(miner))
             {
                 var data = new JsonObject
                 {
@@ -33,23 +37,27 @@ public class MinerChannel : ChannelBase
                     
                 // You can't double connect bubs!
                 SendMessageToSocket(
-                    socket,
+                    miner.Socket,
                     GenerateChannelMessage("miner", "error:join", data)
                 ).Wait();
                 return;
             }
             
-            _connectedClients.Add(socket);
+            _connectedClients.Add(miner);
 
             SendMessageToSocket(
-                socket,
-                GenerateChannelMessage("miner", "success:join", null)
+                miner.Socket,
+                GenerateChannelMessage(
+                    "miner",
+                    "success:join",
+                    new JsonObject { {"uuid", miner.UUID.ToString() }}
+                )
             ).Wait();
         }
         
-        protected override void Leave(WebSocket socket, string? leaveReason = null)
+        protected override void Leave(Miner miner, string? leaveReason = null)
         {
-            if (!_connectedClients.Contains(socket))
+            if (!_connectedClients.Contains(miner))
             {
                 var data = new JsonObject
                 {
@@ -58,13 +66,13 @@ public class MinerChannel : ChannelBase
                 };
                 
                 SendMessageToSocket(
-                    socket,
+                    miner.Socket,
                     GenerateChannelMessage("miner", "error:leave", data)
                 ).Wait();
                 return;
             }
         
-            _connectedClients.Remove(socket);
+            _connectedClients.Remove(miner);
 
             JsonObject jsonObject = new JsonObject
             {
@@ -72,17 +80,17 @@ public class MinerChannel : ChannelBase
             };
 
             SendMessageToSocket(
-                socket,
+                miner.Socket,
                 GenerateChannelMessage("miner", "success:leave", jsonObject)
             ).Wait();
         }
 
         public override void Broadcast(string topic, string eventName, JsonObject data)
         {
-            foreach (var socket in _connectedClients)
+            foreach (var miner in _connectedClients)
             {
                 SendMessageToSocket(
-                    socket,
+                    miner.Socket,
                     GenerateChannelMessage(topic, eventName, data)
                 ).Wait();
             }
@@ -92,7 +100,7 @@ public class MinerChannel : ChannelBase
     
     // All of the cool stuff
 
-    public override IEnumerable<WebSocket> GetConnectedSockets()
+    public override IEnumerable<Miner> GetConnectedSockets()
     {
         return _clients;
     }
@@ -100,8 +108,10 @@ public class MinerChannel : ChannelBase
     // Driving logic for the connection / black magic
     public override async Task Listen(WebSocket socket)
     {
+        var miner = _service.CreateMiner(socket);
+        
         // Socket is connected to the server. Not on the channel specifically.
-        _clients.Add(socket);
+        _clients.Add(miner);
         
         var buffer = new byte[4096];
         var receiveResult = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
@@ -138,10 +148,10 @@ public class MinerChannel : ChannelBase
             switch (jsonObject["event"].ToString())
             {
                 case "join":
-                    Join(socket, jsonObject);
+                    Join(miner, jsonObject);
                     break;
                 case "leave":
-                    Leave(socket);
+                    Leave(miner);
                     break;
                 default:
                     Console.WriteLine("Totally different event...");
@@ -156,7 +166,7 @@ public class MinerChannel : ChannelBase
             receiveResult.CloseStatusDescription,
             CancellationToken.None);
 
-        _clients.Remove(socket);
-        _connectedClients.Remove(socket);
+        _clients.Remove(miner);
+        _connectedClients.Remove(miner);
     }
 }
