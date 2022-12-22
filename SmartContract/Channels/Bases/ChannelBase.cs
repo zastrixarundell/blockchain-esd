@@ -8,14 +8,31 @@ public abstract class ChannelBase
 {
     protected abstract void Dispose();
 
+    /**
+     * Get a list of all of the connected nodes.
+     */
     public abstract IEnumerable<WebSocket> GetConnectedSockets();
 
+    /**
+     * Main consumer function which should be put in the controller.
+     */
     public abstract Task Listen(WebSocket socket);
 
+    /**
+     * Broadcast a messages across all of the connected nodes.
+     */
     public abstract void Broadcast(string topic, string channelName, JsonObject data);
     
+    /**
+     * Logic which needs to be ran when the clients wants to disconnect from the channel.
+     * This does not close the websocket connection, it should just remove the websocket
+     * from the current state of the server.
+     */
     protected abstract void Leave(WebSocket socket, String? leaveReason = null);
 
+    /**
+     * Logic which needs to be ran on the channel when the client joins.
+     */
     protected abstract void Join(WebSocket socket, JsonObject information);
     
     /**
@@ -38,15 +55,10 @@ public abstract class ChannelBase
         var buffer = new ArraySegment<Byte>(encoded, 0, encoded.Length);
         await socket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
     }
-    
-    protected async Task CloseConnectionEvent(WebSocket socket, string topic, JsonObject? data)
-    {
-        data ??= new JsonObject();
 
-        await SendMessageToSocket(
-            socket, GenerateChannelMessage(topic, "disconnect", data));
-    }
-
+    /**
+     * Generate a message which can be consumed by the websocket client.
+     */
     protected JsonObject GenerateChannelMessage(string topic, string eventName, JsonObject? data)
     {
         data ??= new JsonObject();
