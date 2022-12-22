@@ -12,6 +12,13 @@ public class MinerService : IMinerService
     
     public Guid GenerateRandomUuid()
     {
-        throw new NotImplementedException();
+        Guid guid;
+
+        do
+        {
+            guid = Guid.NewGuid();
+        } while (Manager.MinerChannel.GetConnectedSockets().Any(m => m.UUID == guid));
+
+        return guid;
     }
 }
