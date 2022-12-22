@@ -2,6 +2,7 @@
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
 using SmartContract.Services;
+using SmartContract.Services.Interfaces;
 
 namespace SmartContract.Controllers
 {
@@ -9,7 +10,8 @@ namespace SmartContract.Controllers
     [Route("user")]
     public class UserController : Controller
     {
-        private readonly UserService _service;
+        private readonly IUserService _service;
+        
         public UserController()
         {
             _service = new UserService();
