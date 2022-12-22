@@ -11,7 +11,7 @@ class Client
             string id =  IdInput();
             string data = DataInput();
 
-            var user = new User { Id = id, Data = data, Timestamp = DateTime.Now };
+            // var user = new User { Id = id, Data = data, Timestamp = DateTime.Now };
 
             Console.Write("Do you want to conitnue? Y/N: ");
 
