@@ -1,0 +1,114 @@
+{
+	"info": {
+		"_postman_id": "0514fc55-023c-47f2-9e13-bbb4b2c96d6c",
+		"name": "BlockchainESD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10862237"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Create user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"string\",\n  \"timestamp\": \"2022-12-22T17:26:04.147Z\",\n  \"data\": \"string\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5067/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5067",
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Index users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{port}}/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Miners",
+			"item": [
+				{
+					"name": "Broadcast message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5067/miners/broadcast",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5067",
+							"path": [
+								"miners",
+								"broadcast"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get connected clients",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "file",
+							"file": {}
+						},
+						"url": {
+							"raw": "http://localhost:5067/miners/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5067",
+							"path": [
+								"miners",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
