@@ -11,6 +11,7 @@ namespace SmartContract.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _service;
+        
         public UserController()
         {
             _service = new UserService();
