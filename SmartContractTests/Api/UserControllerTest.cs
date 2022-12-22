@@ -14,12 +14,10 @@ namespace SmartContractTests.Api;
 public class UserControllerTest : IDisposable
 {
     private readonly UserController _controller;
-    private IUserService _service;
 
     public UserControllerTest()
     {
         _controller = new UserController();
-        _service = new UserService();
     }
 
     public void Dispose()

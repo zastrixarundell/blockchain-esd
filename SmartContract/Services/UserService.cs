@@ -19,4 +19,9 @@ public class UserService : IUserService
     {
         return _requests;
     }
+
+    public void ClearUsers()
+    {
+        _requests = new List<User>();
+    }
 }
