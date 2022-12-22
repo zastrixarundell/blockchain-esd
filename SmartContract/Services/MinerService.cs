@@ -5,11 +5,6 @@ namespace SmartContract.Services;
 
 public class MinerService : IMinerService
 {
-    public Miner CreateMiner(WebSocket socket)
-    {
-        return new Miner { Socket = socket, UUID = GenerateRandomUuid() };
-    }
-    
     public Guid GenerateRandomUuid()
     {
         Guid guid;
@@ -17,7 +12,7 @@ public class MinerService : IMinerService
         do
         {
             guid = Guid.NewGuid();
-        } while (Manager.MinerChannel.GetConnectedSockets().Any(m => m.UUID == guid));
+        } while (Manager.MinerChannel.GetConnectedMiners().Any(m => m.UUID == guid));
 
         return guid;
     }
