@@ -83,6 +83,18 @@ public class MinerChannel : ChannelBase
                 GenerateChannelMessage("miner", "success:leave", jsonObject)
             ).Wait();
         }
+        
+        protected override void AcceptResult(Miner miner, JsonObject data)
+        {
+            var calculation = new Calculation
+            {
+                Data = data["data"].ToString(),
+                Requester = Manager.UserService.GetAll().First(user => user.Id == data["user"].ToString()),
+                Result = data["result"].ToString()
+            };
+            
+            Console.WriteLine("Accepted calculation: " + calculation);
+        }
 
         public override void Broadcast(string topic, string eventName, JsonObject data)
         {
