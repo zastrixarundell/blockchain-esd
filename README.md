@@ -44,3 +44,17 @@ And to leave the channel:
     "event": "leave"
 }
 ```
+
+Send result from miner to the server after connection:
+
+```json
+{
+    "topic": "miner",
+    "event": "result",
+    "data": {
+        "data": "asdfasdfasdfasdfsafsfd",
+        "user": "string",
+        "result": "57aca8c268cf7a8ef33f542479db673c063d8535646f24c56275f32636d298b3"
+    }
+}
+```
