@@ -14,6 +14,8 @@ public class MinerChannel : ChannelBase
     
     private readonly List<Miner> _clients = new();
 
+    private readonly List<Calculation> _calculations = new();
+
     protected override void Dispose()
     {
         foreach (var miner in _clients)
@@ -103,13 +105,56 @@ public class MinerChannel : ChannelBase
             
             var calculation = new Calculation
             {
+                Miner = miner,
                 Data = request,
                 Requester = user,
                 Result = result
             };
+
+            _calculations.Add(calculation);
             
             Console.WriteLine("Accepted calculation: " + calculation);
             Console.WriteLine("Is the calculation correct: " + calculation.Valid());
+
+            var requestsCalculations =
+                _calculations.Where(calc => calc.Requester.Id == user.Id).ToList();
+
+            // Check if this is the last queued miner
+            if (requestsCalculations.Count != _clients.Count)
+                return;
+
+            // This means it was the last miner for the connection
+            
+            var validOnes = requestsCalculations.Where(calc => calc.Valid()).ToList();
+
+            if (validOnes.Count > 0)
+            {
+                // reward the first one
+                var toBeRewarded = validOnes.First();
+
+                var reward = 1.0 / validOnes.Count;
+
+                SendMessageToSocket(
+                    toBeRewarded.Miner.Socket,
+                    GenerateChannelMessage(
+                        "miner",
+                        "reward",
+                        new JsonObject
+                        {
+                            { "reward", reward }
+                        })
+                ).Wait();
+                
+                Broadcast("miner", "blockchain_update", new JsonObject
+                {
+                    { "request", user.Id },
+                    { "miner", miner.UUID },
+                    { "reward", reward }
+                });
+            }
+            
+            // remove the request from memory
+            _calculations.RemoveAll(calc => calc.Requester.Id == user.Id);
         }
 
         public override void Broadcast(string topic, string eventName, JsonObject data)
