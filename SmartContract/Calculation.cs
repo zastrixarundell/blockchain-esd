@@ -5,6 +5,7 @@ namespace SmartContract;
 
 public class Calculation
 {
+    public Miner Miner     { get; set; }
     public User Requester  { get; set; }
     public string Data     { get; set; }
     public string Result   { get; set; }
