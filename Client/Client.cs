@@ -7,11 +7,21 @@ using System.Text;
 using System.Xml;
 using Newtonsoft.Json;
 using System.Net.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Nodes;
+using System.Net.NetworkInformation;
 
 class Client
 {
     static int Main()
     {
+        int minerCount = getMinerCount();
+
+        if (minerCount > 0)
+            Console.WriteLine("There are " + minerCount + " miners connected.");
+        else
+            Console.WriteLine("There are no miners connected.");
+
         string input;
         do
         {
@@ -90,4 +100,25 @@ class Client
         return false;
     }
 
+    public static int getMinerCount()
+    {
+        var response = SendRequest("http://localhost:5067/miners", "get", null).Result;
+
+        Console.WriteLine(response.Content);
+
+        return 0;
+    }
+
+    private static async Task<HttpResponseMessage> SendRequest(string url, string type, string? body)
+    {
+        var client = new HttpClient();
+
+        switch (type.ToLower())
+        {
+            case "get":
+                return await client.GetAsync(url);
+            default:
+                return await client.PostAsync(url, null);
+        }
+    }
 }
