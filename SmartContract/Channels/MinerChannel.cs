@@ -148,7 +148,7 @@ public class MinerChannel : ChannelBase
                 Broadcast("miner", "blockchain_update", new JsonObject
                 {
                     { "request", user.Id },
-                    { "miner", miner.UUID },
+                    { "miner", toBeRewarded.Miner.UUID },
                     { "reward", reward }
                 });
             }
