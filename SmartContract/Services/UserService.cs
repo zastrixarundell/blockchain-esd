@@ -5,16 +5,16 @@ namespace SmartContract.Services;
 
 public class UserService : IUserService
 {
-    private IEnumerable<User> _requests = new List<User>();
+    private List<User> _requests = new();
 
     public bool QueueUser(User user)
     {
         if (_requests.Any(u => u.Id.Equals(user.Id)))
             return false;
             
-        _requests = _requests.Append(user);
+        _requests.Add(user);
 
-        if (_requests.Count() == 1)
+        if (_requests.Count == 1)
         {
             Manager.MinerChannel.Broadcast(
                 "miner",
@@ -27,6 +27,11 @@ public class UserService : IUserService
         }
 
         return true;
+    }
+
+    public void RemoveFromQueue(User user)
+    {
+        _requests.RemoveAll(u => u.Id == user.Id);
     }
 
     public IEnumerable<User> GetAll()
