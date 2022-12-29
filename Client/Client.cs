@@ -86,6 +86,7 @@ class Client
         try
         {
             var httpContent = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
+            var httpResponse = webClient.PostAsync("http://localhost:5067/user", httpContent).Result;
 
             Console.WriteLine("Successfully added to the queue!");
 

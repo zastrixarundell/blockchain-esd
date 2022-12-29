@@ -14,6 +14,8 @@ public class MinerChannel : ChannelBase
     
     private readonly List<Miner> _clients = new();
 
+    private readonly List<Calculation> _calculations = new();
+
     protected override void Dispose()
     {
         foreach (var miner in _clients)
@@ -83,6 +85,92 @@ public class MinerChannel : ChannelBase
                 GenerateChannelMessage("miner", "success:leave", jsonObject)
             ).Wait();
         }
+        
+        protected override void AcceptResult(Miner miner, JsonObject data)
+        {
+            var request = data["data"].ToString();
+            if (String.IsNullOrEmpty(request))
+                return;
+
+            var userMatch = Manager.UserService.GetAll().Count(user => user.Id == data["user"].ToString());
+
+            if (userMatch == 0)
+                return;
+
+            var user = Manager.UserService.GetAll().First(user => user.Id == data["user"].ToString());
+            
+            var result = data["result"].ToString();
+            if (String.IsNullOrEmpty(result))
+                return;
+            
+            var calculation = new Calculation
+            {
+                Miner = miner,
+                Data = request,
+                Requester = user,
+                Result = result
+            };
+
+            _calculations.Add(calculation);
+            
+            Console.WriteLine("Accepted calculation: " + calculation);
+            Console.WriteLine("Is the calculation correct: " + calculation.Valid());
+
+            var requestsCalculations =
+                _calculations.Where(calc => calc.Requester.Id == user.Id).ToList();
+
+            // Check if this is the last queued miner
+            if (requestsCalculations.Count != _clients.Count)
+                return;
+
+            // This means it was the last miner for the connection
+            
+            var validOnes = requestsCalculations.Where(calc => calc.Valid()).ToList();
+
+            foreach (var toBeRewarded in validOnes)
+            {
+                var reward = 1.0 / validOnes.Count;
+
+                SendMessageToSocket(
+                    toBeRewarded.Miner.Socket,
+                    GenerateChannelMessage(
+                        "miner",
+                        "reward",
+                        new JsonObject
+                        {
+                            { "reward", reward }
+                        })
+                ).Wait();
+                
+                Broadcast("miner", "blockchain_update", new JsonObject
+                {
+                    { "request", user.Id },
+                    { "miner", toBeRewarded.Miner.UUID },
+                    { "reward", reward }
+                });
+            }
+            
+            // remove the request from memory
+            _calculations.RemoveAll(calc => calc.Requester.Id == user.Id);
+            Manager.UserService.RemoveFromQueue(user);
+            
+            // queue new one
+            var users = Manager.UserService.GetAll().ToList();
+
+            if (!users.Any())
+                return;
+
+            user = users.First();
+
+            Manager.MinerChannel.Broadcast(
+                "miner",
+                "new_job",
+                new JsonObject
+                {
+                    { "request", user.Data },
+                    { "sender", user.Id }
+                });
+        }
 
         public override void Broadcast(string topic, string eventName, JsonObject data)
         {
@@ -151,6 +239,9 @@ public class MinerChannel : ChannelBase
                     break;
                 case "leave":
                     Leave(miner);
+                    break;
+                case "result":
+                    AcceptResult(miner, jsonObject["data"].AsObject());
                     break;
                 default:
                     Console.WriteLine("Totally different event...");

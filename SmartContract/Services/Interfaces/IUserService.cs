@@ -6,4 +6,6 @@ public interface IUserService
     public bool QueueUser(User user);
 
     public void ClearUsers();
+
+    public void RemoveFromQueue(User user);
 }

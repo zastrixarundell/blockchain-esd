@@ -34,6 +34,11 @@ public abstract class ChannelBase
      * Logic which needs to be ran on the channel when the client joins.
      */
     protected abstract void Join(Miner miner, JsonObject information);
+
+    /**
+     * Logic on which the result is accepted. If it is valid the miner will be rewarded.
+     */
+    protected abstract void AcceptResult(Miner miner, JsonObject result);
     
     /**
      * Listen to the socket and get a WebSocketReceiveResult. This will be decoded to a
