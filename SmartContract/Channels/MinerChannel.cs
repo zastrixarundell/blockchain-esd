@@ -152,11 +152,9 @@ public class MinerChannel : ChannelBase
             
             // remove the request from memory
             _calculations.RemoveAll(calc => calc.Requester.Id == user.Id);
-
             Manager.UserService.RemoveFromQueue(user);
             
             // queue new one
-
             var users = Manager.UserService.GetAll().ToList();
 
             if (!users.Any())
