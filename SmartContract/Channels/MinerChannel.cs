@@ -126,12 +126,9 @@ public class MinerChannel : ChannelBase
             // This means it was the last miner for the connection
             
             var validOnes = requestsCalculations.Where(calc => calc.Valid()).ToList();
-
-            if (validOnes.Count > 0)
+            
+            foreach (var toBeRewarded in validOnes)
             {
-                // reward the first one
-                var toBeRewarded = validOnes.First();
-
                 var reward = 1.0 / validOnes.Count;
 
                 SendMessageToSocket(
@@ -148,13 +145,14 @@ public class MinerChannel : ChannelBase
                 Broadcast("miner", "blockchain_update", new JsonObject
                 {
                     { "request", user.Id },
-                    { "miner", miner.UUID },
+                    { "miner", toBeRewarded.Miner.UUID },
                     { "reward", reward }
                 });
             }
             
             // remove the request from memory
             _calculations.RemoveAll(calc => calc.Requester.Id == user.Id);
+
             Manager.UserService.RemoveFromQueue(user);
             
             // queue new one
