@@ -127,11 +127,8 @@ public class MinerChannel : ChannelBase
             
             var validOnes = requestsCalculations.Where(calc => calc.Valid()).ToList();
 
-            if (validOnes.Count > 0)
+            foreach (var toBeRewarded in validOnes)
             {
-                // reward the first one
-                var toBeRewarded = validOnes.First();
-
                 var reward = 1.0 / validOnes.Count;
 
                 SendMessageToSocket(
