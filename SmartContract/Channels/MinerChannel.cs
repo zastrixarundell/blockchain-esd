@@ -86,14 +86,30 @@ public class MinerChannel : ChannelBase
         
         protected override void AcceptResult(Miner miner, JsonObject data)
         {
+            var request = data["data"].ToString();
+            if (String.IsNullOrEmpty(request))
+                return;
+
+            var userMatch = Manager.UserService.GetAll().Count(user => user.Id == data["user"].ToString());
+
+            if (userMatch == 0)
+                return;
+
+            var user = Manager.UserService.GetAll().First(user => user.Id == data["user"].ToString());
+            
+            var result = data["result"].ToString();
+            if (String.IsNullOrEmpty(result))
+                return;
+            
             var calculation = new Calculation
             {
-                Data = data["data"].ToString(),
-                Requester = Manager.UserService.GetAll().First(user => user.Id == data["user"].ToString()),
-                Result = data["result"].ToString()
+                Data = request,
+                Requester = user,
+                Result = result
             };
             
             Console.WriteLine("Accepted calculation: " + calculation);
+            Console.WriteLine("Is the calculation correct: " + calculation.Valid());
         }
 
         public override void Broadcast(string topic, string eventName, JsonObject data)
@@ -163,6 +179,9 @@ public class MinerChannel : ChannelBase
                     break;
                 case "leave":
                     Leave(miner);
+                    break;
+                case "result":
+                    AcceptResult(miner, jsonObject["data"].AsObject());
                     break;
                 default:
                     Console.WriteLine("Totally different event...");
