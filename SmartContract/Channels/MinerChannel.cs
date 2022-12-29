@@ -155,6 +155,25 @@ public class MinerChannel : ChannelBase
             
             // remove the request from memory
             _calculations.RemoveAll(calc => calc.Requester.Id == user.Id);
+            Manager.UserService.RemoveFromQueue(user);
+            
+            // queue new one
+
+            var users = Manager.UserService.GetAll().ToList();
+
+            if (!users.Any())
+                return;
+
+            user = users.First();
+
+            Manager.MinerChannel.Broadcast(
+                "miner",
+                "new_job",
+                new JsonObject
+                {
+                    { "request", user.Data },
+                    { "sender", user.Id }
+                });
         }
 
         public override void Broadcast(string topic, string eventName, JsonObject data)
