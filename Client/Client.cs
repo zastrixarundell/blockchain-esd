@@ -1,5 +1,12 @@
 ﻿using SmartContract;
-using System.Threading.Channels;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
+using System.Text;
+using System.Xml;
+using Newtonsoft.Json;
+using System.Net.Http;
 
 class Client
 {
@@ -11,7 +18,9 @@ class Client
             string id =  IdInput();
             string data = DataInput();
 
-            // var user = new User { Id = id, Data = data, Timestamp = DateTime.Now };
+            var user = new User { Id = id, Data = data, Timestamp = DateTime.Now };
+
+            postData(user);
 
             Console.Write("Do you want to conitnue? Y/N: ");
 
@@ -59,4 +68,26 @@ class Client
 
         return input;
     }
+
+    public static bool postData(User user)
+    {
+        HttpClient webClient = new HttpClient();
+
+        try
+        {
+            var httpContent = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
+            var httpResponse = webClient.PostAsync("http://localhost:5067/user", httpContent).Result;
+
+            Console.WriteLine("Successfully added to the queue!");
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        return false;
+    }
+
 }
