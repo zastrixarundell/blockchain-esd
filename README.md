@@ -72,7 +72,7 @@ while len(dict) < 10:
 		print("Example hash: " + hashed_string + "\n")
 ```
 
-## Postman
+## Postman / Requests
 
 Under `Postman` there is a JSON file for all of the rest requests. Unfortunately it does not allow exporting websocket connects but you just need to connect to:
 
@@ -87,12 +87,62 @@ And the following information needs to be sent to connect to the server:
 }
 ```
 
+Response on a successful join:
+
+```json
+{
+    "topic": "miner",
+    "event": "success:join",
+    "data": {
+        "uuid": "3fe65aa7-501b-4e90-a89b-e6ce953b983a"
+    }
+}
+```
+
+Response on a faulty join:
+
+```json
+{
+    "topic": "miner",
+    "event": "error:join",
+    "data": {
+        "message": "You can not double join"
+    }
+}
+```
+
+
 And to leave the channel:
 
 ```json
 {
     "topic": "miner",
     "event": "leave"
+}
+```
+
+On a fauly leave:
+
+```json
+{
+    "topic": "miner",
+    "event": "error:leave",
+    "data": {
+        "message": "You need to be logged in to log out. Please log in to log out."
+    }
+}
+```
+
+Get new job from the server:
+
+```json
+{
+    "topic": "miner",
+    "event": "new_job",
+    "data": {
+        "request": "L9BMZ76TAHIDCZFXP7IH",
+        "sender": "sender_id"
+    }
 }
 ```
 
@@ -103,9 +153,35 @@ Send result from miner to the server after connection:
     "topic": "miner",
     "event": "result",
     "data": {
-        "data": "asdfasdfasdfasdfsafsfd",
-        "user": "string",
-        "result": "57aca8c268cf7a8ef33f542479db673c063d8535646f24c56275f32636d298b3"
+        "data": "L9BMZ76TAHIDCZFXP7IH",
+        "user": "sender_id",
+        "result": "000f04a09c3c85d41194fa27f140360946e3c003e26b457ea4908af747e70bf4"
+    }
+}
+```
+
+Get reward from server:
+
+```json
+{
+    "topic": "miner",
+    "event": "reward",
+    "data": {
+        "reward": 0.5
+    }
+}
+```
+
+Get blockchain update from server:
+
+```json
+{
+    "topic": "miner",
+    "event": "blockchain_update",
+    "data": {
+        "request": "user_id",
+        "miner": "3fe65aa7-501b-4e90-a89b-e6ce953b983a",
+        "reward": 0.5
     }
 }
 ```
