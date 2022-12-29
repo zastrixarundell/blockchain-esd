@@ -126,7 +126,7 @@ public class MinerChannel : ChannelBase
             // This means it was the last miner for the connection
             
             var validOnes = requestsCalculations.Where(calc => calc.Valid()).ToList();
-            
+
             foreach (var toBeRewarded in validOnes)
             {
                 var reward = 1.0 / validOnes.Count;
