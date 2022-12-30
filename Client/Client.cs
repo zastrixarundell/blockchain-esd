@@ -20,9 +20,6 @@ class Client
 
             var user = new User { Id = id, Data = data, Timestamp = DateTime.Now };
 
-
-            
-
             postData(user);
 
             Console.Write("Do you want to conitnue? Y/N: ");
@@ -81,7 +78,7 @@ class Client
             var httpContent = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
             var httpResponse = webClient.PostAsync("http://localhost:5067/user", httpContent).Result;
 
-            Console.WriteLine(httpResponse.ToString());
+            Console.WriteLine("Successfully added to the queue!");
 
             return true;
         }
