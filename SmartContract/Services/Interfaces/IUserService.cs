@@ -1,11 +1,14 @@
-namespace SmartContract.Services.Interfaces;
+using System.Collections.Generic;
 
-public interface IUserService
+namespace SmartContract.Services.Interfaces
 {
-    public IEnumerable<User> GetAll();
-    public bool QueueUser(User user);
+    public interface IUserService
+    {
+        public IEnumerable<User> GetAll();
+        public bool QueueUser(User user);
 
-    public void ClearUsers();
+        public void ClearUsers();
 
-    public void RemoveFromQueue(User user);
+        public void RemoveFromQueue(User user);
+    }
 }

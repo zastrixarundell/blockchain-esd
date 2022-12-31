@@ -1,8 +1,10 @@
+using System;
 using System.Net.WebSockets;
 
-namespace SmartContract.Services.Interfaces;
-
-public interface IMinerService
+namespace SmartContract.Services.Interfaces
 {
-    public Guid GenerateRandomUuid();
+    public interface IMinerService
+    {
+        public Guid GenerateRandomUuid();
+    }
 }
