@@ -44,7 +44,7 @@ namespace SmartContract.Channels
                 // You can't double connect bubs!
                 SendMessageToSocket(
                     miner.Socket,
-                    GenerateChannelMessage("miner", "error:join", data)
+                    GenerateChannelMessage("miner", "join:error", data)
                 ).Wait();
                 return;
             }
@@ -55,7 +55,7 @@ namespace SmartContract.Channels
                 miner.Socket,
                 GenerateChannelMessage(
                     "miner",
-                    "success:join",
+                    "join:success",
                     new JsonObject { { "uuid", miner.UUID.ToString() } }
                 )
             ).Wait();
@@ -73,7 +73,7 @@ namespace SmartContract.Channels
 
                 SendMessageToSocket(
                     miner.Socket,
-                    GenerateChannelMessage("miner", "error:leave", data)
+                    GenerateChannelMessage("miner", "leave:error", data)
                 ).Wait();
                 return;
             }
@@ -87,7 +87,7 @@ namespace SmartContract.Channels
 
             SendMessageToSocket(
                 miner.Socket,
-                GenerateChannelMessage("miner", "success:leave", jsonObject)
+                GenerateChannelMessage("miner", "leave:success", jsonObject)
             ).Wait();
         }
 
@@ -147,7 +147,7 @@ namespace SmartContract.Channels
                         })
                 ).Wait();
 
-                Broadcast("miner", "blockchain_update", new JsonObject
+                Broadcast("miner", "blockchain:append", new JsonObject
                 {
                     { "request", user.Id },
                     { "miner", toBeRewarded.Miner.UUID },
