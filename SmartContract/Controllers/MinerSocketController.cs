@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SmartContract.Channels;
+using System.Linq;
 
 namespace SmartContract.Controllers
 {
@@ -28,7 +29,7 @@ namespace SmartContract.Controllers
         {
             var jsonObject = new JsonObject
             {
-                { "miners", JsonSerializer.SerializeToNode(Manager.MinerChannel.GetConnectedMiners()) }
+                { "miners", Manager.MinerChannel.GetConnectedMiners().ToList().Count }
             };
               
             return Ok(jsonObject.ToJsonString());
