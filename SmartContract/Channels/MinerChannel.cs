@@ -38,7 +38,7 @@ namespace SmartContract.Channels
             {
                 var data = new JsonObject
                 {
-                    { "message", "You can not double join" }
+                    { "message", "You can not double join!" }
                 };
 
                 // You can't double connect bubs!
@@ -140,7 +140,7 @@ namespace SmartContract.Channels
                     toBeRewarded.Miner.Socket,
                     GenerateChannelMessage(
                         "miner",
-                        "reward",
+                        "job:reward",
                         new JsonObject
                         {
                             { "reward", reward }
@@ -149,9 +149,10 @@ namespace SmartContract.Channels
 
                 Broadcast("miner", "blockchain:append", new JsonObject
                 {
-                    { "request", user.Id },
+                    { "user", user.Id },
                     { "miner", toBeRewarded.Miner.UUID },
-                    { "reward", reward }
+                    { "reward", reward },
+                    { "timestamp", DateTime.UtcNow }
                 });
             }
 
@@ -169,11 +170,11 @@ namespace SmartContract.Channels
 
             Manager.MinerChannel.Broadcast(
                 "miner",
-                "new_job",
+                "job:new",
                 new JsonObject
                 {
                     { "request", user.Data },
-                    { "sender", user.Id }
+                    { "user", user.Id }
                 });
         }
 
@@ -245,7 +246,7 @@ namespace SmartContract.Channels
                     case "leave":
                         Leave(miner);
                         break;
-                    case "result":
+                    case "job:result":
                         AcceptResult(miner, jsonObject["data"].AsObject());
                         break;
                     default:

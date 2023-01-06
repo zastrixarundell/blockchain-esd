@@ -20,11 +20,11 @@ namespace SmartContract.Services
             {
                 Manager.MinerChannel.Broadcast(
                     "miner",
-                    "new_job",
+                    "job:new",
                     new JsonObject
                     {
                     { "request", user.Data },
-                    { "sender", user.Id }
+                    { "user", user.Id }
                     });
             }
 

@@ -90,7 +90,7 @@ Response on a successful join:
 ```json
 {
     "topic": "miner",
-    "event": "success:join",
+    "event": "join:success",
     "data": {
         "uuid": "3fe65aa7-501b-4e90-a89b-e6ce953b983a"
     }
@@ -102,9 +102,9 @@ Response on a faulty join:
 ```json
 {
     "topic": "miner",
-    "event": "error:join",
+    "event": "join:error",
     "data": {
-        "message": "You can not double join"
+        "message": "You can not double join!"
     }
 }
 ```
@@ -119,14 +119,26 @@ And to leave the channel:
 }
 ```
 
-On a fauly leave:
+On a faulty leave:
 
 ```json
 {
     "topic": "miner",
-    "event": "error:leave",
+    "event": "leave:error",
     "data": {
         "message": "You need to be logged in to log out. Please log in to log out."
+    }
+}
+```
+
+On a successful leave (the reason can also be `hasty`):
+
+```json
+{
+    "topic": "miner",
+    "event": "leave:success",
+    "data": {
+        "reason": "normal"
     }
 }
 ```
@@ -136,10 +148,10 @@ Get new job from the server:
 ```json
 {
     "topic": "miner",
-    "event": "new_job",
+    "event": "job:new",
     "data": {
         "request": "L9BMZ76TAHIDCZFXP7IH",
-        "sender": "sender_id"
+        "user": "user-id"
     }
 }
 ```
@@ -149,10 +161,10 @@ Send result from miner to the server after connection:
 ```json
 {
     "topic": "miner",
-    "event": "result",
+    "event": "job:result",
     "data": {
         "data": "L9BMZ76TAHIDCZFXP7IH",
-        "user": "sender_id",
+        "user": "user-id",
         "result": "000f04a09c3c85d41194fa27f140360946e3c003e26b457ea4908af747e70bf4"
     }
 }
@@ -163,7 +175,7 @@ Get reward from server:
 ```json
 {
     "topic": "miner",
-    "event": "reward",
+    "event": "job:reward",
     "data": {
         "reward": 0.5
     }
@@ -174,17 +186,18 @@ Get blockchain update from server:
 
 ```json
 {
-    "topic": "miner",
-    "event": "blockchain_update",
-    "data": {
-        "request": "user_id",
-        "miner": "3fe65aa7-501b-4e90-a89b-e6ce953b983a",
-        "reward": 0.5
-    }
+  "topic": "miner",
+  "event": "blockchain:append",
+  "data": {
+    "user": "user-id",
+    "miner": "dfdca815-0543-4452-8dfa-38ac3152f499",
+    "reward": 1,
+    "timestamp": "2023-01-06T14:26:59.2227444Z"
+  }
 }
 ```
 
-## Fedora Linux 37 docuemntation
+## Fedora Linux 37 documentation
 
 *This was specifically made for a Fedora Silverblue 37 setup running inside a devcontainer.*
 
