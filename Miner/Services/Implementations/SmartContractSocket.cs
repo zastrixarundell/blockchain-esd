@@ -136,7 +136,7 @@ namespace Miner.Services.Implementations
                                 _client.SendInstant(jsonObject.ToJsonString()).Wait();
                                 break;
                             default:
-                                Console.WriteLine($"{option} is not an option!");
+                                Console.WriteLine($"\"{option}\" is not an option!");
                                 break;
                         }
                         
@@ -188,10 +188,6 @@ namespace Miner.Services.Implementations
                     // Setting up the client
                     
                     _client.ReconnectTimeout = TimeSpan.FromSeconds(30);
-                    _client.ReconnectionHappened.Subscribe(info =>
-                        Console.WriteLine($"Reconnection happened, type: {info.Type}"));
-                    _client.DisconnectionHappened.Subscribe(info =>
-                        Console.WriteLine($"Disconnection happened, type: {info.Exception.Message}"));
                     
                     _client.MessageReceived.Subscribe(HandleMessage);
                     
