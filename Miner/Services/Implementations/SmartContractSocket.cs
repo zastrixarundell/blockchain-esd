@@ -26,7 +26,7 @@ namespace Miner.Services.Implementations
                 if (joinType == "success")
                 {
                     Miner.Uuid = Guid.Parse(data["uuid"].ToString());
-                    Console.WriteLine($"Registered miner as: {Miner.Uuid}");
+                    Log("info", $"Registered miner as: {Miner.Uuid}");
                     return;
                 }
                 
@@ -42,7 +42,7 @@ namespace Miner.Services.Implementations
                     ExitEvent.Set();
                 }
                 
-                Console.WriteLine("An error happened while leaving!");
+                Log("error", $"An error happened while leaving!");
             }
 
             private void HandleBlokchain(string blockchainType, JsonObject data)
@@ -59,7 +59,7 @@ namespace Miner.Services.Implementations
                     
                     Miner.AppendToBlockchain(blockchain);
                     
-                    Console.WriteLine("Added to blockchain!");
+                    Log("info", "Added to blockchain!");
                 }
             }
 
@@ -70,16 +70,16 @@ namespace Miner.Services.Implementations
                     case "reward":
                         float reward = Convert.ToSingle(data["reward"].ToString());
                         Miner.Balance += reward;
-                        Console.WriteLine($"I got a new reward of: {reward}!");
+                        Log("info", $"I got a new reward of: {reward}!");
                         break;
                     case "new":
                         string job = data["request"].ToString();
                         string user = data["user"].ToString(); 
                         // Handle the new job
-                        Console.WriteLine($"Got new job from {user} with the value of: {job}");
+                        Log("info", $"Got new job from {user} with the value of: {job}");
                         JobRunner runner = new JobRunner(job);
                         string result = runner.CalculateHash().Result;
-                        Console.WriteLine($"Calculated job hash: {result}!");
+                        Log("info", $"Calculated job hash: {result}!");
                         
                         JsonObject jsonObject = new JsonObject
                         {
@@ -105,6 +105,11 @@ namespace Miner.Services.Implementations
         #endregion
 
         #region general methods
+
+            private void Log(string level, string message)
+            {
+                Console.WriteLine($"[{level.ToUpper(), -5} {DateTime.Now:HH:mm:ss}] {message}");
+            }
 
             private void StartUI()
             {
@@ -153,7 +158,7 @@ namespace Miner.Services.Implementations
 
             public void HandleMessage(ResponseMessage message)
             {
-                Console.WriteLine($"Got a new message: {message}");
+                Log("info", $"Got a new message {message}");
                 
                 JsonObject? jsonObject = (JsonObject)JsonObject.Parse(message.ToString());
 
@@ -170,7 +175,7 @@ namespace Miner.Services.Implementations
                         HandleLeave(contractEvent[1], data);
                         break;
                     case "broadcast":
-                        Console.WriteLine($"Got broadcast: \"{jsonObject["data"]["message"]}\" from source: \"{contractEvent[1]}\"");
+                        Log("info", $"Got broadcast: \"{jsonObject["data"]["message"]}\" from source: \"{contractEvent[1]}\"");
                         break;
                     case "blockchain":
                         HandleBlokchain(contractEvent[1], data);
@@ -203,7 +208,8 @@ namespace Miner.Services.Implementations
                     
                     _client.SendInstant(jsonObject.ToJsonString()).Wait();
                     
-                    Console.WriteLine("Hey, I started!");
+                    Log("info", "Connection successful!");
+                    
                     
                     // Client is now registered
 
