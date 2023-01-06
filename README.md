@@ -186,14 +186,14 @@ Get blockchain update from server:
 
 ```json
 {
-  "topic": "miner",
-  "event": "blockchain:append",
-  "data": {
-    "user": "user-id",
-    "miner": "dfdca815-0543-4452-8dfa-38ac3152f499",
-    "reward": 1,
-    "timestamp": "2023-01-06T14:26:59.2227444Z"
-  }
+    "topic": "miner",
+    "event": "blockchain:append",
+    "data": {
+        "user": "user-id",
+        "miner": "dfdca815-0543-4452-8dfa-38ac3152f499",
+        "reward": 1,
+        "timestamp": "2023-01-06T14:26:59.2227444Z"
+    }
 }
 ```
 
