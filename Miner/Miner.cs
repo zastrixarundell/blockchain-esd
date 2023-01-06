@@ -1,33 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Miner.Services;
+using Miner.Services.Implementations;
 
 namespace Miner
 {
     public class Miner
     {
-        public Guid? Uuid { get; set; }
+        private IBlockchainService _blockchain = new BlockchainService();
+
+        private readonly IMinerSocket _socket = new SmartContractSocket();
         
-        private readonly List<Blockchain> _blockchain = new List<Blockchain>();
+        public Guid? Uuid { get; set; }
 
-        public void AppendToBlockchain(Blockchain blockchain)
+        public void Register()
         {
-            _blockchain.Add(blockchain);
-        }
-
-        public IEnumerable<Blockchain> GetBlockchain()
-        {
-            return _blockchain;
-        }
-
-        public string BlockChainAsString()
-        {
-            var lines = new ArrayList { $"| {"Miner UUID",-36} | {"User",-20} | {"Reward", -8} | Timestamp" };
-
-            foreach (var blockchain in _blockchain)
-                lines.Add(blockchain.ToString());
-
-            return string.Join("\n", lines.ToArray());
+            _socket.Register(this);
         }
     }
 }

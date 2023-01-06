@@ -9,20 +9,21 @@ namespace Miner
         {
             Miner miner = new Miner();
             
-            // miner.connect();
+            miner.Register();
+            
             // miner.load();
 
-            Blockchain blockchain = new Blockchain
-            {
-                UserId = "test_user_id",
-                MinerId = Guid.NewGuid(),
-                Timestamp = DateTime.Now,
-                Reward = 10
-            };
+            // Blockchain blockchain = new Blockchain
+            // {
+            //     UserId = "test_user_id",
+            //     MinerId = Guid.NewGuid(),
+            //     Timestamp = DateTime.Now,
+            //     Reward = 10
+            // };
             
-            miner.AppendToBlockchain(blockchain);
-
-            Console.WriteLine(miner.BlockChainAsString());
+            // miner.AppendToBlockchain(blockchain);
+            //
+            // Console.WriteLine(miner.BlockChainAsString());
         }
     }
 }
