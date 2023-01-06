@@ -16,6 +16,16 @@ namespace Miner
         {
             _socket = new SmartContractSocket(this);
         }
+
+        public void AppendToBlockchain(Blockchain blockchain)
+        {
+            _blockchain.AppendToBlockchain(blockchain);
+        }
+
+        public string CurrentBlockchain()
+        {
+            return _blockchain.BlockChainAsString();
+        }
         
         public Guid? Uuid { get; set; }
 

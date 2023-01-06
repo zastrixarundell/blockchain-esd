@@ -32,6 +32,26 @@ namespace Miner.Services.Implementations
                 _client.Stop(WebSocketCloseStatus.InvalidPayloadData, "It happens.");
             }
 
+            private void HandleBlokchain(string blockchainType, JsonObject data)
+            {
+                if (blockchainType == "append")
+                {
+                    Blockchain blockchain = new Blockchain
+                    {
+                        Reward = Convert.ToSingle(data["reward"].ToString()),
+                        MinerId = Guid.Parse(data["miner"].ToString()),
+                        UserId = data["user"].ToString(),
+                        Timestamp = DateTime.Parse(data["timestamp"].ToString())
+                    };
+                    
+                    Miner.AppendToBlockchain(blockchain);
+                    
+                    Console.WriteLine("Added to blockchain! The current self-blockchain is: ");
+                    
+                    Console.WriteLine(Miner.CurrentBlockchain());
+                }
+            }
+
         #endregion
 
         #region handlers for running logic
@@ -53,7 +73,7 @@ namespace Miner.Services.Implementations
                         Console.WriteLine($"Got broadcast: \"{jsonObject["data"]["message"]}\" from source: \"{contractEvent[1]}\"");
                         break;
                     case "blockchain":
-                        
+                        HandleBlokchain(contractEvent[1], data);
                         break;
                 }
             }

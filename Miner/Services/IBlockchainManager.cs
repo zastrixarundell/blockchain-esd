@@ -7,5 +7,7 @@ namespace Miner.Services
         IEnumerable<Blockchain> GetBlockchain();
 
         string BlockChainAsString();
+
+        void AppendToBlockchain(Blockchain blockchain);
     }
 }
