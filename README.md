@@ -186,7 +186,9 @@ Get blockchain update from server:
 }
 ```
 
-## Fedora Linux docuemntation
+## Fedora Linux 37 docuemntation
+
+*This was specifically made for a Fedora Silverblue 37 setup running inside a devcontainer.*
 
 This is only specifically for users running Fedora Linux. To install *a* dotnet runtime you need to do:
 
