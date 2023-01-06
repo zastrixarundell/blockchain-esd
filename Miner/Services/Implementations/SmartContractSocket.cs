@@ -40,6 +40,7 @@ namespace Miner.Services.Implementations
                 {
                     _client.Stop(WebSocketCloseStatus.NormalClosure, "And stopping normally!");
                     ExitEvent.Set();
+                    return;
                 }
                 
                 Log("error", $"An error happened while leaving!");
