@@ -1,8 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System;
 
-Console.WriteLine("Starting new miner!");
-
 namespace Miner
 {
     public class Program
@@ -13,6 +11,18 @@ namespace Miner
             
             // miner.connect();
             // miner.load();
+
+            Blockchain blockchain = new Blockchain
+            {
+                UserId = "test_user_id",
+                MinerId = Guid.NewGuid(),
+                Timestamp = DateTime.Now,
+                Reward = 10
+            };
+            
+            miner.AppendToBlockchain(blockchain);
+
+            Console.WriteLine(miner.BlockChainAsString());
         }
     }
 }
