@@ -47,6 +47,8 @@ namespace Miner.Services.Implementations
                     Console.WriteLine("Added to blockchain! The current self-blockchain is: ");
                     
                     Console.WriteLine(Miner.CurrentBlockchain());
+                    
+                    Console.WriteLine($"And my current balance is: {Miner.Balance}!");
                 }
             }
 
@@ -54,6 +56,11 @@ namespace Miner.Services.Implementations
             {
                 switch (jobEventType)
                 {
+                    case "reward":
+                        float reward = Convert.ToSingle(data["reward"].ToString());
+                        Miner.Balance += reward;
+                        Console.WriteLine($"I got a new reward of: {reward}!");
+                        break;
                     case "new":
                         string job = data["request"].ToString();
                         string user = data["user"].ToString(); 
@@ -147,7 +154,7 @@ namespace Miner.Services.Implementations
 
                     while (_client.IsRunning)
                     {
-                        // Essentially an infinite loop while the client is doing something
+                        // TODO: Add some form of input check for normal leaves!
                     }
                 }
             }

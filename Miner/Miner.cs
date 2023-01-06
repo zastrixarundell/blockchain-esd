@@ -8,9 +8,11 @@ namespace Miner
 {
     public class Miner
     {
-        private IBlockchainService _blockchain = new BlockchainService();
+        private readonly IBlockchainService _blockchain = new BlockchainService();
 
         private readonly MinerSocket _socket;
+        
+        public float Balance { get; set; }
 
         public Miner()
         {
