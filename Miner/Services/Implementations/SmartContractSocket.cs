@@ -2,6 +2,7 @@ using System;
 using System.Net.WebSockets;
 using System.Text.Json.Nodes;
 using System.Threading;
+using System.Threading.Tasks;
 using Websocket.Client;
 
 namespace Miner.Services.Implementations
@@ -9,6 +10,8 @@ namespace Miner.Services.Implementations
     public class SmartContractSocket : MinerSocket
     {
         private WebsocketClient? _client;
+
+        private static readonly ManualResetEvent ExitEvent = new ManualResetEvent(false);
 
         private readonly Uri url = new Uri("ws://localhost:5067/miners/connect/ws");
 
@@ -23,7 +26,7 @@ namespace Miner.Services.Implementations
                 if (joinType == "success")
                 {
                     Miner.Uuid = Guid.Parse(data["uuid"].ToString());
-                    Console.WriteLine($"Registered miner as: {Miner.Uuid}");
+                    Log("info", $"Registered miner as: {Miner.Uuid}");
                     return;
                 }
                 
@@ -36,10 +39,11 @@ namespace Miner.Services.Implementations
                 if (leaveType == "success")
                 {
                     _client.Stop(WebSocketCloseStatus.NormalClosure, "And stopping normally!");
-                    Environment.Exit(0);
+                    ExitEvent.Set();
+                    return;
                 }
                 
-                Console.WriteLine("An error happened while leaving!");
+                Log("error", $"An error happened while leaving!");
             }
 
             private void HandleBlokchain(string blockchainType, JsonObject data)
@@ -56,7 +60,7 @@ namespace Miner.Services.Implementations
                     
                     Miner.AppendToBlockchain(blockchain);
                     
-                    Console.WriteLine("Added to blockchain!");
+                    Log("info", "Added to blockchain!");
                 }
             }
 
@@ -67,16 +71,16 @@ namespace Miner.Services.Implementations
                     case "reward":
                         float reward = Convert.ToSingle(data["reward"].ToString());
                         Miner.Balance += reward;
-                        Console.WriteLine($"I got a new reward of: {reward}!");
+                        Log("info", $"I got a new reward of: {reward}!");
                         break;
                     case "new":
                         string job = data["request"].ToString();
                         string user = data["user"].ToString(); 
                         // Handle the new job
-                        Console.WriteLine($"Got new job from {user} with the value of: {job}");
+                        Log("info", $"Got new job from {user} with the value of: {job}");
                         JobRunner runner = new JobRunner(job);
                         string result = runner.CalculateHash().Result;
-                        Console.WriteLine($"Calculated job hash: {result}!");
+                        Log("info", $"Calculated job hash: {result}!");
                         
                         JsonObject jsonObject = new JsonObject
                         {
@@ -101,70 +105,17 @@ namespace Miner.Services.Implementations
 
         #endregion
 
-        #region handlers for running logic
+        #region general methods
 
-            public void HandleMessage(ResponseMessage message)
+            private void Log(string level, string message)
             {
-                Console.WriteLine($"Got a new message: {message}");
-                
-                JsonObject? jsonObject = (JsonObject)JsonObject.Parse(message.ToString());
-
-                string[] contractEvent = jsonObject["event"].ToString().Split(":");
-
-                JsonObject data = (JsonObject) jsonObject["data"];
-
-                switch (contractEvent[0])
-                {
-                    case "join":
-                        HandleJoin(contractEvent[1], data);
-                        break;
-                    case "leave":
-                        HandleLeave(contractEvent[1], data);
-                        break;
-                    case "broadcast":
-                        Console.WriteLine($"Got broadcast: \"{jsonObject["data"]["message"]}\" from source: \"{contractEvent[1]}\"");
-                        break;
-                    case "blockchain":
-                        HandleBlokchain(contractEvent[1], data);
-                        break;
-                    case "job":
-                        HandleJob(contractEvent[1], data);
-                        break;
-                }
+                Console.WriteLine($"[{level.ToUpper(), -5} {DateTime.Now:HH:mm:ss}] {message}");
             }
 
-            public override void Register()
+            private void StartUI()
             {
-                using (_client = new WebsocketClient(url))
-                {
-                    // Setting up the client
-                    
-                    _client.ReconnectTimeout = TimeSpan.FromSeconds(30);
-                    _client.ReconnectionHappened.Subscribe(info =>
-                        Console.WriteLine($"Reconnection happened, type: {info.Type}"));
-                    _client.DisconnectionHappened.Subscribe(info =>
-                        Console.WriteLine($"Disconnection happened, type: {info.Exception.Message}"));
-                    
-                    _client.MessageReceived.Subscribe(HandleMessage);
-                    
-                    _client.Start().Wait();
-                    
-                    // Joined on the event!
-                    
-                    JsonObject jsonObject = new JsonObject
-                    {
-                        {"topic", "miner"},
-                        {"event", "join"}
-                    };
-                    
-                    _client.SendInstant(jsonObject.ToJsonString()).Wait();
-                    
-                    Console.WriteLine("Hey, I started!");
-                    
-                    // Client is now registered
-
-                    while (_client.IsRunning)
-                    {
+                Task.Run(() => {
+                    while(_client.IsRunning) {
                         Console.WriteLine("Super cool miner UI:\n");
                         Console.WriteLine("M - Check your info!");
                         Console.WriteLine("B - Blockchain status!");
@@ -182,7 +133,7 @@ namespace Miner.Services.Implementations
                                 Console.WriteLine(Miner.CurrentBlockchain());
                                 break;
                             case "X":
-                                jsonObject = new JsonObject
+                                var jsonObject = new JsonObject
                                 {
                                     {"topic", "miner"},
                                     {"event", "leave"},
@@ -191,7 +142,7 @@ namespace Miner.Services.Implementations
                                 _client.SendInstant(jsonObject.ToJsonString()).Wait();
                                 break;
                             default:
-                                Console.WriteLine($"{option} is not an option!");
+                                Console.WriteLine($"\"{option}\" is not an option!");
                                 break;
                         }
                         
@@ -199,6 +150,73 @@ namespace Miner.Services.Implementations
                         
                         Console.Write("\n\n\n");
                     }
+                });
+            }
+
+        #endregion
+
+        #region handlers for running logic
+
+            public void HandleMessage(ResponseMessage message)
+            {
+                Log("info", $"Got a new message {message}");
+                
+                JsonObject? jsonObject = (JsonObject)JsonObject.Parse(message.ToString());
+
+                string[] contractEvent = jsonObject["event"].ToString().Split(":");
+
+                JsonObject data = (JsonObject) jsonObject["data"];
+
+                switch (contractEvent[0])
+                {
+                    case "join":
+                        HandleJoin(contractEvent[1], data);
+                        break;
+                    case "leave":
+                        HandleLeave(contractEvent[1], data);
+                        break;
+                    case "broadcast":
+                        Log("info", $"Got broadcast: \"{jsonObject["data"]["message"]}\" from source: \"{contractEvent[1]}\"");
+                        break;
+                    case "blockchain":
+                        HandleBlokchain(contractEvent[1], data);
+                        break;
+                    case "job":
+                        HandleJob(contractEvent[1], data);
+                        break;
+                }
+            }
+
+            public override void Register()
+            {
+                using (_client = new WebsocketClient(url))
+                {
+                    // Setting up the client
+                    
+                    _client.ReconnectTimeout = TimeSpan.FromSeconds(30);
+                    
+                    _client.MessageReceived.Subscribe(HandleMessage);
+                    
+                    _client.Start().Wait();
+                    
+                    // Joined on the event!
+                    
+                    JsonObject jsonObject = new JsonObject
+                    {
+                        {"topic", "miner"},
+                        {"event", "join"}
+                    };
+                    
+                    _client.SendInstant(jsonObject.ToJsonString()).Wait();
+                    
+                    Log("info", "Connection successful!");
+                    
+                    
+                    // Client is now registered
+
+                    StartUI();
+
+                    ExitEvent.WaitOne();
                 }
             }
 
