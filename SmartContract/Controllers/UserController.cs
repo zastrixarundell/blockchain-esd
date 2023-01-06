@@ -15,23 +15,19 @@ namespace SmartContract.Controllers
         public IActionResult Create(User user)
         {
             var jsonObject = new JsonObject();
-            int code;
 
             if (Manager.UserService.QueueUser(user))
             {
                 jsonObject["status"] = "ok";
                 jsonObject["message"] = "User request added to queue.";
-                code = 201;
+                return StatusCode(201, jsonObject.ToJsonString());
             }
             else
             {
                 jsonObject["status"] = "error";
                 jsonObject["message"] = $"User with ID \"{user.Id}\" has already been taken!";
                 return BadRequest(jsonObject.ToJsonString());
-                code = 400;
             }
-
-            return StatusCode(code, jsonObject.ToJsonString());
         }
 
         [HttpGet(Name = "List users/requests")]
