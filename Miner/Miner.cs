@@ -35,5 +35,10 @@ namespace Miner
         {
             _socket.Register();
         }
+
+        public override string ToString()
+        {
+            return $"UUID: {Uuid} and balace: {Balance}";
+        }
     }
 }

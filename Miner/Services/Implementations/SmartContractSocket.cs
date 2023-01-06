@@ -1,6 +1,7 @@
 using System;
 using System.Net.WebSockets;
 using System.Text.Json.Nodes;
+using System.Threading;
 using Websocket.Client;
 
 namespace Miner.Services.Implementations
@@ -30,6 +31,17 @@ namespace Miner.Services.Implementations
                 _client.Stop(WebSocketCloseStatus.InvalidPayloadData, "It happens.");
             }
 
+            private void HandleLeave(string leaveType, JsonObject data)
+            {
+                if (leaveType == "success")
+                {
+                    _client.Stop(WebSocketCloseStatus.NormalClosure, "And stopping normally!");
+                    Environment.Exit(0);
+                }
+                
+                Console.WriteLine("An error happened while leaving!");
+            }
+
             private void HandleBlokchain(string blockchainType, JsonObject data)
             {
                 if (blockchainType == "append")
@@ -44,11 +56,7 @@ namespace Miner.Services.Implementations
                     
                     Miner.AppendToBlockchain(blockchain);
                     
-                    Console.WriteLine("Added to blockchain! The current self-blockchain is: ");
-                    
-                    Console.WriteLine(Miner.CurrentBlockchain());
-                    
-                    Console.WriteLine($"And my current balance is: {Miner.Balance}!");
+                    Console.WriteLine("Added to blockchain!");
                 }
             }
 
@@ -110,6 +118,9 @@ namespace Miner.Services.Implementations
                     case "join":
                         HandleJoin(contractEvent[1], data);
                         break;
+                    case "leave":
+                        HandleLeave(contractEvent[1], data);
+                        break;
                     case "broadcast":
                         Console.WriteLine($"Got broadcast: \"{jsonObject["data"]["message"]}\" from source: \"{contractEvent[1]}\"");
                         break;
@@ -154,7 +165,39 @@ namespace Miner.Services.Implementations
 
                     while (_client.IsRunning)
                     {
-                        // TODO: Add some form of input check for normal leaves!
+                        Console.WriteLine("Super cool miner UI:\n");
+                        Console.WriteLine("M - Check your info!");
+                        Console.WriteLine("B - Blockchain status!");
+                        Console.WriteLine("X - Stop the miner!\n");
+                        Console.Write("Pick your poison: ");
+
+                        string option = Console.ReadLine();
+
+                        switch (option)
+                        {
+                            case "M":
+                                Console.WriteLine(Miner);
+                                break;
+                            case "B":
+                                Console.WriteLine(Miner.CurrentBlockchain());
+                                break;
+                            case "X":
+                                jsonObject = new JsonObject
+                                {
+                                    {"topic", "miner"},
+                                    {"event", "leave"},
+                                };
+                    
+                                _client.SendInstant(jsonObject.ToJsonString()).Wait();
+                                break;
+                            default:
+                                Console.WriteLine($"{option} is not an option!");
+                                break;
+                        }
+                        
+                        Thread.Sleep(1000);
+                        
+                        Console.Write("\n\n\n");
                     }
                 }
             }
