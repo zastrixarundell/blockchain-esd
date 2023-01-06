@@ -2,6 +2,7 @@ using System;
 using System.Net.WebSockets;
 using System.Text.Json.Nodes;
 using System.Threading;
+using System.Threading.Tasks;
 using Websocket.Client;
 
 namespace Miner.Services.Implementations
@@ -9,6 +10,8 @@ namespace Miner.Services.Implementations
     public class SmartContractSocket : MinerSocket
     {
         private WebsocketClient? _client;
+
+        private static readonly ManualResetEvent ExitEvent = new ManualResetEvent(false);
 
         private readonly Uri url = new Uri("ws://localhost:5067/miners/connect/ws");
 
@@ -36,7 +39,7 @@ namespace Miner.Services.Implementations
                 if (leaveType == "success")
                 {
                     _client.Stop(WebSocketCloseStatus.NormalClosure, "And stopping normally!");
-                    Environment.Exit(0);
+                    ExitEvent.Set();
                 }
                 
                 Console.WriteLine("An error happened while leaving!");
@@ -97,6 +100,51 @@ namespace Miner.Services.Implementations
                         
                         break;
                 }
+            }
+
+        #endregion
+
+        #region general methods
+
+            private void StartUI()
+            {
+                Task.Run(() => {
+                    while(_client.IsRunning) {
+                        Console.WriteLine("Super cool miner UI:\n");
+                        Console.WriteLine("M - Check your info!");
+                        Console.WriteLine("B - Blockchain status!");
+                        Console.WriteLine("X - Stop the miner!\n");
+                        Console.Write("Pick your poison: ");
+
+                        string option = Console.ReadLine();
+
+                        switch (option)
+                        {
+                            case "M":
+                                Console.WriteLine(Miner);
+                                break;
+                            case "B":
+                                Console.WriteLine(Miner.CurrentBlockchain());
+                                break;
+                            case "X":
+                                var jsonObject = new JsonObject
+                                {
+                                    {"topic", "miner"},
+                                    {"event", "leave"},
+                                };
+                    
+                                _client.SendInstant(jsonObject.ToJsonString()).Wait();
+                                break;
+                            default:
+                                Console.WriteLine($"{option} is not an option!");
+                                break;
+                        }
+                        
+                        Thread.Sleep(1000);
+                        
+                        Console.Write("\n\n\n");
+                    }
+                });
             }
 
         #endregion
@@ -163,42 +211,9 @@ namespace Miner.Services.Implementations
                     
                     // Client is now registered
 
-                    while (_client.IsRunning)
-                    {
-                        Console.WriteLine("Super cool miner UI:\n");
-                        Console.WriteLine("M - Check your info!");
-                        Console.WriteLine("B - Blockchain status!");
-                        Console.WriteLine("X - Stop the miner!\n");
-                        Console.Write("Pick your poison: ");
+                    StartUI();
 
-                        string option = Console.ReadLine();
-
-                        switch (option)
-                        {
-                            case "M":
-                                Console.WriteLine(Miner);
-                                break;
-                            case "B":
-                                Console.WriteLine(Miner.CurrentBlockchain());
-                                break;
-                            case "X":
-                                jsonObject = new JsonObject
-                                {
-                                    {"topic", "miner"},
-                                    {"event", "leave"},
-                                };
-                    
-                                _client.SendInstant(jsonObject.ToJsonString()).Wait();
-                                break;
-                            default:
-                                Console.WriteLine($"{option} is not an option!");
-                                break;
-                        }
-                        
-                        Thread.Sleep(1000);
-                        
-                        Console.Write("\n\n\n");
-                    }
+                    ExitEvent.WaitOne();
                 }
             }
 
