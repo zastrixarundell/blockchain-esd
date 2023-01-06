@@ -185,3 +185,39 @@ Get blockchain update from server:
     }
 }
 ```
+
+## Fedora Linux 37 docuemntation
+
+*This was specifically made for a Fedora Silverblue 37 setup running inside a devcontainer.*
+
+This is only specifically for users running Fedora Linux. To install *a* dotnet runtime you need to do:
+
+    sudo dnf in dotnet
+
+After that you need to install the correct dotnet `5.0` runtime for your archtype from [the official website](https://dotnet.microsoft.com/en-us/download/dotnet/5.0).
+
+After that you want to run the following command while replacing `<extracted>` with the new folder post-extracting:
+
+```bash
+cd <extracted>
+sudo cp -r sdk/5.0.408 /usr/lib64/dotnet/sdk
+sudo cp -r shared/Microsoft.NETCore.App/5.0.17 /usr/lib64/dotnet/shared/Microsoft.NETCore.App
+sudo cp -r shared/Microsoft.AspNetCore.App/5.0.17 /usr/lib64/dotnet/shared/Microsoft.AspNetCore.App
+```
+
+Then doing `dotnet --list-runtimes` should show a `5.0` runtime:
+
+```bash
+$ dotnet --list-runtimes 
+
+Microsoft.AspNetCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.AspNetCore.App]
+Microsoft.AspNetCore.App 6.0.12 [/usr/lib64/dotnet/shared/Microsoft.AspNetCore.App]
+Microsoft.NETCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.NETCore.App]
+Microsoft.NETCore.App 6.0.12 [/usr/lib64/dotnet/shared/Microsoft.NETCore.App]
+```
+
+After that you need to install the correct openssl which will work on fedora and dotnet5.
+
+```bash
+sudo dnf in https://download.copr.fedorainfracloud.org/results/dioni21/compat-openssl10/fedora-37-x86_64/02529460-compat-openssl10/compat-openssl10-1.0.2o-11.fc36.x86_64.rpm
+```
