@@ -50,12 +50,48 @@ namespace Miner.Services.Implementations
                 }
             }
 
+            private void HandleJob(string jobEventType, JsonObject data)
+            {
+                switch (jobEventType)
+                {
+                    case "new":
+                        string job = data["request"].ToString();
+                        string user = data["user"].ToString(); 
+                        // Handle the new job
+                        Console.WriteLine($"Got new job from {user} with the value of: {job}");
+                        JobRunner runner = new JobRunner(job);
+                        string result = runner.CalculateHash().Result;
+                        Console.WriteLine($"Calculated job hash: {result}!");
+                        
+                        JsonObject jsonObject = new JsonObject
+                        {
+                            {"topic", "miner"},
+                            {"event", "job:result"},
+                            {
+                                "data", 
+                                new JsonObject
+                                {
+                                    { "data", job },
+                                    { "user", user },
+                                    { "result", result }
+                                }
+                            }
+                        };
+                    
+                        _client.SendInstant(jsonObject.ToJsonString()).Wait();
+                        
+                        break;
+                }
+            }
+
         #endregion
 
         #region handlers for running logic
 
             public void HandleMessage(ResponseMessage message)
             {
+                Console.WriteLine($"Got a new message: {message}");
+                
                 JsonObject? jsonObject = (JsonObject)JsonObject.Parse(message.ToString());
 
                 string[] contractEvent = jsonObject["event"].ToString().Split(":");
@@ -72,6 +108,9 @@ namespace Miner.Services.Implementations
                         break;
                     case "blockchain":
                         HandleBlokchain(contractEvent[1], data);
+                        break;
+                    case "job":
+                        HandleJob(contractEvent[1], data);
                         break;
                 }
             }
