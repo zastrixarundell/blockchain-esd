@@ -1,80 +1,119 @@
 using System;
 using System.Net.WebSockets;
 using System.Text.Json.Nodes;
-using System.Threading;
-using System.Threading.Tasks;
 using Websocket.Client;
 
 namespace Miner.Services.Implementations
 {
-    public class SmartContractSocket : IMinerSocket
+    public class SmartContractSocket : MinerSocket
     {
-        private WebsocketClient client;
-        private Miner miner;
-        
-        public void HandleMessage(ResponseMessage message)
-        {
-            JsonObject? jsonObject = (JsonObject)JsonObject.Parse(message.ToString());
+        private WebsocketClient? _client;
 
-            switch (jsonObject["event"].ToString())
-            {
-                case "success:join":
-                    miner.Uuid = Guid.Parse(jsonObject["data"]["uuid"].ToString());
-                    Console.WriteLine($"Registered miner as: {miner.Uuid}");
-                    break;
-                case "error:join":
-                    Console.WriteLine(jsonObject["data"]["message"].ToString());
-                    client.Stop(WebSocketCloseStatus.InvalidPayloadData, "It happens");
-                    break;
-                case "broadcast:restful":
-                    Console.WriteLine(jsonObject["data"]["message"].ToString());
-                    break;
-                default:
-                    break;
-            }
+        private readonly Uri url = new Uri("ws://localhost:5067/miners/connect/ws");
+
+        public SmartContractSocket(Miner miner) : base(miner)
+        {
         }
 
-        public void Register(Miner miner)
-        {
-            var url = new Uri("ws://localhost:5067/miners/connect/ws");
+        #region handlers for specific events
 
-            this.miner = miner;
-
-            using (client = new WebsocketClient(url))
+            private void HandleJoin(string joinType, JsonObject data)
             {
-                // Setting up the client
-                
-                client.ReconnectTimeout = TimeSpan.FromSeconds(30);
-                client.ReconnectionHappened.Subscribe(info =>
-                    Console.WriteLine($"Reconnection happened, type: {info.Type}"));
-                client.DisconnectionHappened.Subscribe(info =>
-                    Console.WriteLine($"Disconnection happened, type: {info.Exception.Message}"));
-                
-                client.MessageReceived.Subscribe(HandleMessage);
-                
-                client.Start().Wait();
-                
-                // Joined on the event!
-                
-                JsonObject jsonObject = new JsonObject
+                if (joinType == "success")
                 {
-                    {"topic", "miner"},
-                    {"event", "join"}
-                };
+                    Miner.Uuid = Guid.Parse(data["uuid"].ToString());
+                    Console.WriteLine($"Registered miner as: {Miner.Uuid}");
+                    return;
+                }
                 
-                client.SendInstant(jsonObject.ToJsonString()).Wait();
-                
-                Console.WriteLine("Hey, I started!");
-                
-                // Client is now registered
+                Console.WriteLine(data["message"].ToString());
+                _client.Stop(WebSocketCloseStatus.InvalidPayloadData, "It happens.");
+            }
 
-                while (client.IsRunning)
+            private void HandleBlokchain(string blockchainType, JsonObject data)
+            {
+                if (blockchainType == "append")
                 {
-                    // Essentially an infinite loop while the client is doing something
+                    Blockchain blockchain = new Blockchain
+                    {
+                        Reward = Convert.ToSingle(data["reward"].ToString()),
+                        MinerId = Guid.Parse(data["miner"].ToString()),
+                        UserId = data["user"].ToString(),
+                        Timestamp = DateTime.Parse(data["timestamp"].ToString())
+                    };
+                    
+                    Miner.AppendToBlockchain(blockchain);
+                    
+                    Console.WriteLine("Added to blockchain! The current self-blockchain is: ");
+                    
+                    Console.WriteLine(Miner.CurrentBlockchain());
                 }
             }
-        }
 
+        #endregion
 
+        #region handlers for running logic
+
+            public void HandleMessage(ResponseMessage message)
+            {
+                JsonObject? jsonObject = (JsonObject)JsonObject.Parse(message.ToString());
+
+                string[] contractEvent = jsonObject["event"].ToString().Split(":");
+
+                JsonObject data = (JsonObject) jsonObject["data"];
+
+                switch (contractEvent[0])
+                {
+                    case "join":
+                        HandleJoin(contractEvent[1], data);
+                        break;
+                    case "broadcast":
+                        Console.WriteLine($"Got broadcast: \"{jsonObject["data"]["message"]}\" from source: \"{contractEvent[1]}\"");
+                        break;
+                    case "blockchain":
+                        HandleBlokchain(contractEvent[1], data);
+                        break;
+                }
+            }
+
+            public override void Register()
+            {
+                using (_client = new WebsocketClient(url))
+                {
+                    // Setting up the client
+                    
+                    _client.ReconnectTimeout = TimeSpan.FromSeconds(30);
+                    _client.ReconnectionHappened.Subscribe(info =>
+                        Console.WriteLine($"Reconnection happened, type: {info.Type}"));
+                    _client.DisconnectionHappened.Subscribe(info =>
+                        Console.WriteLine($"Disconnection happened, type: {info.Exception.Message}"));
+                    
+                    _client.MessageReceived.Subscribe(HandleMessage);
+                    
+                    _client.Start().Wait();
+                    
+                    // Joined on the event!
+                    
+                    JsonObject jsonObject = new JsonObject
+                    {
+                        {"topic", "miner"},
+                        {"event", "join"}
+                    };
+                    
+                    _client.SendInstant(jsonObject.ToJsonString()).Wait();
+                    
+                    Console.WriteLine("Hey, I started!");
+                    
+                    // Client is now registered
+
+                    while (_client.IsRunning)
+                    {
+                        // Essentially an infinite loop while the client is doing something
+                    }
+                }
+            }
+
+        #endregion
+        
     }
 }
