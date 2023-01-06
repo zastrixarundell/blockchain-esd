@@ -55,17 +55,15 @@ On successful processing, the initial sender is saved and rewarded with the curr
 ## Generating codes via Python
 
 ```python
-import hashlib
-import string
-import random
-
-m = hashlib.sha256()
+from hashlib import sha256
+from random import choices
+from string import ascii_uppercase, digits
 
 dict = {}
 
 while len(dict) < 10:
-	generated = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 20))
-	hashed_string = hashlib.sha256(generated.encode('utf-8')).hexdigest()
+	generated = ''.join(choices(ascii_uppercase + digits, k = 20))
+	hashed_string = sha256(generated.encode('utf-8')).hexdigest()
 	if hashed_string[0:3] == "000":
 		dict[generated] = hashed_string
 		print("Example data: " + generated)
@@ -76,7 +74,7 @@ while len(dict) < 10:
 
 Under `Postman` there is a JSON file for all of the rest requests. Unfortunately it does not allow exporting websocket connects but you just need to connect to:
 
-    localhost:5067/miners/connect/ws
+    ws://localhost:5067/miners/connect/ws
 
 And the following information needs to be sent to connect to the server:
 
