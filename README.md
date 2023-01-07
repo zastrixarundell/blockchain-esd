@@ -201,29 +201,37 @@ Get blockchain update from server:
 
 *This was specifically made for a Fedora Silverblue 37 setup running inside a devcontainer.*
 
-This is only specifically for users running Fedora Linux. To install *a* dotnet runtime you need to do:
+This is only specifically for users running Fedora Linux. To install the current LTS dotnet runtime you need to do:
 
     sudo dnf in dotnet
 
-After that you need to install the correct dotnet `5.0` runtime for your archtype from [the official website](https://dotnet.microsoft.com/en-us/download/dotnet/5.0).
+After that you need to install the correct dotnet `5.0` runtime for your system. Go to the [the official download website](https://dotnet.microsoft.com/en-us/download/dotnet/5.0) and download it for `x64`.
 
-After that you want to run the following command while replacing `<extracted>` with the new folder post-extracting:
+After that you want to run the following commands to install the SDK & runtimes:
 
 ```bash
-cd <extracted>
-sudo cp -r sdk/5.0.408 /usr/lib64/dotnet/sdk
-sudo cp -r shared/Microsoft.NETCore.App/5.0.17 /usr/lib64/dotnet/shared/Microsoft.NETCore.App
-sudo cp -r shared/Microsoft.AspNetCore.App/5.0.17 /usr/lib64/dotnet/shared/Microsoft.AspNetCore.App
+sudo tar -zxvf dotnet-sdk-5.0.408-linux-x64.tar.gz -C /usr/lib64/dotnet/ ./sdk
+sudo tar -zxvf dotnet-sdk-5.0.408-linux-x64.tar.gz -C /usr/lib64/dotnet/ ./shared/Microsoft.NETCore.App
+sudo tar -zxvf dotnet-sdk-5.0.408-linux-x64.tar.gz -C /usr/lib64/dotnet/ ./shared/Microsoft.AspNetCore.App
 ```
 
-Then doing `dotnet --list-runtimes` should show a `5.0` runtime:
+Then you should be able to check your installed SDKs:
+
+```bash
+$ dotnet --list-sdks
+
+5.0.408 [/usr/lib64/dotnet/sdk] # important
+6.0.112 [/usr/lib64/dotnet/sdk]
+```
+
+And runtimes:
 
 ```bash
 $ dotnet --list-runtimes 
 
-Microsoft.AspNetCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.AspNetCore.App]
+Microsoft.AspNetCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.AspNetCore.App] # important
 Microsoft.AspNetCore.App 6.0.12 [/usr/lib64/dotnet/shared/Microsoft.AspNetCore.App]
-Microsoft.NETCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.NETCore.App]
+Microsoft.NETCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.NETCore.App] # important
 Microsoft.NETCore.App 6.0.12 [/usr/lib64/dotnet/shared/Microsoft.NETCore.App]
 ```
 
@@ -231,6 +239,12 @@ After that you need to install the correct openssl which will work on fedora and
 
 ```bash
 sudo dnf in https://download.copr.fedorainfracloud.org/results/dioni21/compat-openssl10/fedora-37-x86_64/02529460-compat-openssl10/compat-openssl10-1.0.2o-11.fc36.x86_64.rpm
+```
+
+And finally adding the correct env. variable to the system:
+
+```bash
+echo 'DOTNET_ROOT="/usr/lib64/dotnet"' | sudo tee -a /etc/environment
 ```
 
 ## Ubuntu 20.04 ARM64 documentation
