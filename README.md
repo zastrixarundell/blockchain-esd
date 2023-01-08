@@ -247,17 +247,17 @@ And finally adding the correct env. variable to the system:
 echo 'DOTNET_ROOT="/usr/lib64/dotnet"' | sudo tee -a /etc/environment
 ```
 
-## Ubuntu 20.04 ARM64 documentation
+## Ubuntu 22.04 ARM64 documentation
 
 *This was specifically made for a ubuntu setup on Oracle Cloud Ampere CPU.*
 
-Go to the official microsoft [dotnet download page](https://dotnet.microsoft.com/en-us/download/dotnet) and download any supported version with a `Linux` `Arm64` option. At the time of wriring this `.NET 7.0` is the latest one. Download `.NET 5.0` as well. 
+Go to the official microsoft [dotnet download page](https://dotnet.microsoft.com/en-us/download/dotnet) and download any supported LTS under `Linux` `Arm64`. At the time of wriring this `.NET 6.0` is the latest LTS. Download `.NET 5.0` as well. 
 
 After downloading both zip files and uploading them to the server, you can generate the `dotnet` folder:
 
 ```bash
 mkdir dotnet
-tar -zxvf dotnet-sdk-7.0.101-linux-arm64.tar.gz -C dotnet
+tar -zxvf dotnet-sdk-6.0.404-linux-arm64.tar.gz -C dotnet
 tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./sdk
 tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./shared/Microsoft.AspNetCore.App
 tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./shared/Microsoft.NETCore.App
