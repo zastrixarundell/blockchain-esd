@@ -289,8 +289,9 @@ rm -r ./dotnet
 After that you need to install an older version of `libssl` to support `.NET 5.0`:
 
 ```bash
-sudo apt update
 wget http://ports.ubuntu.com/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
+
+sudo apt update
 sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
 ```
 
