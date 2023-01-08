@@ -274,7 +274,10 @@ echo 'DOTNET_ROOT="/usr/share/dotnet"' | sudo tee -a /etc/environment
 Test the installation:
 
 ```bash
-dotnet --list-sdks
+$ dotnet --list-sdks
+
+5.0.408 [/usr/share/dotnet/sdk]
+6.0.404 [/usr/share/dotnet/sdk]
 ```
 
 And clear the dotnet folder:
