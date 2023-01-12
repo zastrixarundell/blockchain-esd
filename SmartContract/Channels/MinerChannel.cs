@@ -262,7 +262,6 @@ namespace SmartContract.Channels
                     // The socket disconnected, need to clear the data
                     Console.WriteLine("The socket disconnected!");
                     _clients.Remove(miner);
-                    await socket.CloseAsync(WebSocketCloseStatus.InternalServerError, "Disconnected", CancellationToken.None);
                 }
             }
 
