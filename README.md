@@ -4,11 +4,22 @@ Blockchain: Elements of Software Development
 
 An example blockchain application for FTN NS.
 
-## How everything works:
+## Table of contents
+
+* [How everything works](#how-everything-works)
+* [Clients](#clients)
+* [Miners](#miners)
+* [Data examples](#data-examples)
+* [Generating codes via Python](#generating-codes-via-python)
+* [Postman / Requests](#postman--requests)
+* [Fedora Linux 37](#fedora-linux-37)
+* [SSL Support / Reverse proxy](#ssl-support-with-remote-host-and-reverse-proxy)
+
+## How everything works
 
 In this example we have the smart contract work both as a restful and a websocket server. The restful server is for clients while the websocket server is for miners. 
 
-![Network Topology](https://raw.githubusercontent.com/zastrixarundell/blockchain-esd/master/blockchain.jpeg)
+![Network Topology](./blockchain.jpeg)
 
 ## Clients
 
@@ -20,7 +31,7 @@ Miners are connected to the websocket server for instant transmission of data. W
 
 On successful processing, the initial sender is saved and rewarded with the currency. Afterwards the blockchain is appended with the transaction.
 
-## Data examples:
+## Data examples
 
     Example data: L9BMZ76TAHIDCZFXP7IH
     Example hash: 000f04a09c3c85d41194fa27f140360946e3c003e26b457ea4908af747e70bf4
@@ -197,7 +208,7 @@ Get blockchain update from server:
 }
 ```
 
-## Fedora Linux 37 documentation
+## Fedora Linux 37
 
 *This was specifically made for a Fedora Silverblue 37 setup running inside a devcontainer.*
 
@@ -233,3 +244,26 @@ After that you need to install the correct openssl which will work on fedora and
 sudo dnf in https://download.copr.fedorainfracloud.org/results/dioni21/compat-openssl10/fedora-37-x86_64/02529460-compat-openssl10/compat-openssl10-1.0.2o-11.fc36.x86_64.rpm
 ```
 
+## SSL support with remote host and reverse proxy
+
+The easiest way to spin up the application on a remote host and have SSL certificates is to use Caddy with reverse proxy-ing.
+
+This example will be used for the Oracle Cloud server running Ubuntu 22.04.
+
+Install caddy:
+
+```bash
+sudo apt install caddy
+```
+
+After that you need to edit `/etc/caddy/Caddyfile` and add a reverse proxy:
+
+```
+smartcontract.my.host {
+    reverse_proxy localhost:5067
+}
+```
+
+And add an `A` type DNS record to `smartcontract.my.host` pointing to the host IP address. 
+
+As caddy does automatic SSL certificates, all of the `HTTP` requests need to be to sent to `https` and websocket requests to `wss`.
