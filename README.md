@@ -13,6 +13,7 @@ An example blockchain application for FTN NS.
 * [Generating codes via Python](#generating-codes-via-python)
 * [Postman / Requests](#postman--requests)
 * [Fedora Linux 37](#fedora-linux-37)
+* [Ubuntu 22.04 on ARM64](#ubuntu-2204-arm64-documentation)
 * [SSL Support / Reverse proxy](#ssl-support-with-remote-host-and-reverse-proxy)
 
 ## How everything works
@@ -314,7 +315,7 @@ sudo apt install --fix-broken
 
 ## SSL support with remote host and reverse proxy
 
-The easiest way to spin up the application on a remote host and have SSL certificates is to use Caddy with reverse proxy-ing.
+The easiest way to spin up the application on a remote host and have SSL certificates is to use Caddy as a reverse proxy.
 
 This example will be used for the Oracle Cloud server running Ubuntu 22.04.
 
