@@ -295,7 +295,7 @@ sudo apt update
 sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
 ```
 
-And potentially if there are some broken package because of the older version of ssl:
+And potentially if there are some broken packages because of the older version of ssl:
 
 ```bash
 sudo apt install --fix-broken
