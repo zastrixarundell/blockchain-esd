@@ -25,8 +25,13 @@ namespace SmartContract.Channels
         {
             foreach (var miner in _clients)
             {
-                Leave(miner);
-                miner.Socket.Dispose();
+
+                try {
+                    Leave(miner);
+                    miner.Socket.Dispose();
+                } catch {
+
+                }
             }
         }
 
@@ -209,7 +214,7 @@ namespace SmartContract.Channels
             var buffer = new byte[4096];
             var receiveResult = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-            while (!receiveResult.CloseStatus.HasValue)
+            while (!receiveResult.CloseStatus.HasValue && socket.State == WebSocketState.Open)
             {
                 var str = System.Text.Encoding.Default.GetString(buffer, 0, receiveResult.Count);
 
@@ -254,13 +259,24 @@ namespace SmartContract.Channels
                         break;
                 }
 
-                receiveResult = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                try
+                {
+                    receiveResult = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                }
+                catch (WebSocketException)
+                {
+                    // The socket disconnected, need to clear the data
+                    Console.WriteLine("The socket disconnected!");
+                    _clients.Remove(miner);
+                    // await socket.CloseAsync(WebSocketCloseStatus.InternalServerError, "Disconnected", CancellationToken.None);
+                }
             }
 
-            await socket.CloseAsync(
-                receiveResult.CloseStatus.Value,
-                receiveResult.CloseStatusDescription,
-                CancellationToken.None);
+            if(receiveResult.CloseStatus != null)
+                await socket.CloseAsync(
+                    receiveResult.CloseStatus.Value,
+                    receiveResult.CloseStatusDescription,
+                    CancellationToken.None);
 
             _clients.Remove(miner);
         }
