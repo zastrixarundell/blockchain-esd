@@ -212,29 +212,37 @@ Get blockchain update from server:
 
 *This was specifically made for a Fedora Silverblue 37 setup running inside a devcontainer.*
 
-This is only specifically for users running Fedora Linux. To install *a* dotnet runtime you need to do:
+This is only specifically for users running Fedora Linux. To install the current LTS dotnet runtime you need to do:
 
     sudo dnf in dotnet
 
-After that you need to install the correct dotnet `5.0` runtime for your archtype from [the official website](https://dotnet.microsoft.com/en-us/download/dotnet/5.0).
+After that you need to install the correct dotnet `5.0` runtime for your system. Go to the [the official download website](https://dotnet.microsoft.com/en-us/download/dotnet/5.0) and download it for `x64`.
 
-After that you want to run the following command while replacing `<extracted>` with the new folder post-extracting:
+After that you want to run the following commands to install the SDK & runtimes:
 
 ```bash
-cd <extracted>
-sudo cp -r sdk/5.0.408 /usr/lib64/dotnet/sdk
-sudo cp -r shared/Microsoft.NETCore.App/5.0.17 /usr/lib64/dotnet/shared/Microsoft.NETCore.App
-sudo cp -r shared/Microsoft.AspNetCore.App/5.0.17 /usr/lib64/dotnet/shared/Microsoft.AspNetCore.App
+sudo tar -zxvf dotnet-sdk-5.0.408-linux-x64.tar.gz -C /usr/lib64/dotnet/ ./sdk
+sudo tar -zxvf dotnet-sdk-5.0.408-linux-x64.tar.gz -C /usr/lib64/dotnet/ ./shared/Microsoft.NETCore.App
+sudo tar -zxvf dotnet-sdk-5.0.408-linux-x64.tar.gz -C /usr/lib64/dotnet/ ./shared/Microsoft.AspNetCore.App
 ```
 
-Then doing `dotnet --list-runtimes` should show a `5.0` runtime:
+Then you should be able to check your installed SDKs:
+
+```bash
+$ dotnet --list-sdks
+
+5.0.408 [/usr/lib64/dotnet/sdk] # important
+6.0.112 [/usr/lib64/dotnet/sdk]
+```
+
+And runtimes:
 
 ```bash
 $ dotnet --list-runtimes 
 
-Microsoft.AspNetCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.AspNetCore.App]
+Microsoft.AspNetCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.AspNetCore.App] # important
 Microsoft.AspNetCore.App 6.0.12 [/usr/lib64/dotnet/shared/Microsoft.AspNetCore.App]
-Microsoft.NETCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.NETCore.App]
+Microsoft.NETCore.App 5.0.17 [/usr/lib64/dotnet/shared/Microsoft.NETCore.App] # important
 Microsoft.NETCore.App 6.0.12 [/usr/lib64/dotnet/shared/Microsoft.NETCore.App]
 ```
 
@@ -242,6 +250,66 @@ After that you need to install the correct openssl which will work on fedora and
 
 ```bash
 sudo dnf in https://download.copr.fedorainfracloud.org/results/dioni21/compat-openssl10/fedora-37-x86_64/02529460-compat-openssl10/compat-openssl10-1.0.2o-11.fc36.x86_64.rpm
+```
+
+And finally adding the correct env. variable to the system:
+
+```bash
+echo 'DOTNET_ROOT="/usr/lib64/dotnet"' | sudo tee -a /etc/environment
+```
+
+## Ubuntu 22.04 ARM64 documentation
+
+*This was specifically made for a ubuntu setup on Oracle Cloud Ampere CPU.*
+
+Go to the official microsoft [dotnet download page](https://dotnet.microsoft.com/en-us/download/dotnet) and download any supported LTS under `Linux` `Arm64`. At the time of wriring this `.NET 6.0` is the latest LTS. Download `.NET 5.0` as well. 
+
+After downloading both zip files and uploading them to the server, you can generate the `dotnet` folder:
+
+```bash
+mkdir dotnet
+tar -zxvf dotnet-sdk-6.0.404-linux-arm64.tar.gz -C dotnet
+tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./sdk
+tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./shared/Microsoft.AspNetCore.App
+tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./shared/Microsoft.NETCore.App
+```
+
+Add the folder to system, link the binary and add env. variables:
+
+```bash
+sudo cp -r dotnet /usr/share
+sudo ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+echo 'DOTNET_ROOT="/usr/share/dotnet"' | sudo tee -a /etc/environment
+```
+
+Test the installation:
+
+```bash
+$ dotnet --list-sdks
+
+5.0.408 [/usr/share/dotnet/sdk]
+6.0.404 [/usr/share/dotnet/sdk]
+```
+
+And clear the dotnet folder:
+
+```bash
+rm -r ./dotnet
+```
+
+After that you need to install an older version of `libssl` to support `.NET 5.0`:
+
+```bash
+wget http://ports.ubuntu.com/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
+
+sudo apt update
+sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
+```
+
+And potentially if there are some broken packages because of the older version of ssl:
+
+```bash
+sudo apt install --fix-broken
 ```
 
 ## SSL support with remote host and reverse proxy
@@ -267,3 +335,4 @@ smartcontract.my.host {
 And add an `A` type DNS record to `smartcontract.my.host` pointing to the host IP address. 
 
 As caddy does automatic SSL certificates, all of the `HTTP` requests need to be to sent to `https` and websocket requests to `wss`.
+

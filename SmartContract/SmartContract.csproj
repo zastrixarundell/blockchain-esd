@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
+    <NoWarn>CS8618,CS8602,CS8600</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
