@@ -247,17 +247,17 @@ And finally adding the correct env. variable to the system:
 echo 'DOTNET_ROOT="/usr/lib64/dotnet"' | sudo tee -a /etc/environment
 ```
 
-## Ubuntu 20.04 ARM64 documentation
+## Ubuntu 22.04 ARM64 documentation
 
 *This was specifically made for a ubuntu setup on Oracle Cloud Ampere CPU.*
 
-Go to the official microsoft [dotnet download page](https://dotnet.microsoft.com/en-us/download/dotnet) and download any supported version with a `Linux` `Arm64` option. At the time of wriring this `.NET 7.0` is the latest one. Download `.NET 5.0` as well. 
+Go to the official microsoft [dotnet download page](https://dotnet.microsoft.com/en-us/download/dotnet) and download any supported LTS under `Linux` `Arm64`. At the time of wriring this `.NET 6.0` is the latest LTS. Download `.NET 5.0` as well. 
 
 After downloading both zip files and uploading them to the server, you can generate the `dotnet` folder:
 
 ```bash
 mkdir dotnet
-tar -zxvf dotnet-sdk-7.0.101-linux-arm64.tar.gz -C dotnet
+tar -zxvf dotnet-sdk-6.0.404-linux-arm64.tar.gz -C dotnet
 tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./sdk
 tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./shared/Microsoft.AspNetCore.App
 tar -xzvf dotnet-sdk-5.0.408-linux-arm64.tar.gz -C ./dotnet/ ./shared/Microsoft.NETCore.App
@@ -274,11 +274,29 @@ echo 'DOTNET_ROOT="/usr/share/dotnet"' | sudo tee -a /etc/environment
 Test the installation:
 
 ```bash
-dotnet --list-sdks
+$ dotnet --list-sdks
+
+5.0.408 [/usr/share/dotnet/sdk]
+6.0.404 [/usr/share/dotnet/sdk]
 ```
 
 And clear the dotnet folder:
 
 ```bash
 rm -r ./dotnet
+```
+
+After that you need to install an older version of `libssl` to support `.NET 5.0`:
+
+```bash
+wget http://ports.ubuntu.com/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
+
+sudo apt update
+sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
+```
+
+And potentially if there are some broken packages because of the older version of ssl:
+
+```bash
+sudo apt install --fix-broken
 ```
