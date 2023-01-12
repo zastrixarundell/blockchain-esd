@@ -66,28 +66,18 @@ namespace SmartContract.Channels
             ).Wait();
         }
 
-        protected override void Leave(Miner miner, string? leaveReason = null)
+        protected override void Leave(Miner miner)
         {
-            if (!GetConnectedMiners().Contains(miner))
-            {
-                var data = new JsonObject
-                {
-                    // lol
-                    { "message", "You need to be logged in to log out. Please log in to log out." }
-                };
+            string leaveReason = "normal";
 
-                SendMessageToSocket(
-                    miner.Socket,
-                    GenerateChannelMessage("miner", "leave:error", data)
-                ).Wait();
-                return;
+            if(GetConnectedMiners().Contains(miner)) {
+                _clients.Remove(miner);
+                leaveReason = "hasty";
             }
-
-            _clients.Remove(miner);
 
             JsonObject jsonObject = new JsonObject
             {
-                { "reason", leaveReason == null ? "normal" : "hasty" }
+                { "reason", leaveReason }
             };
 
             SendMessageToSocket(
@@ -212,9 +202,13 @@ namespace SmartContract.Channels
             _clients.Add(miner);
 
             var buffer = new byte[4096];
-            var receiveResult = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-            while (!receiveResult.CloseStatus.HasValue && socket.State == WebSocketState.Open)
+            WebSocketReceiveResult receiveResult = null;
+
+            if(socket.State == WebSocketState.Open)
+                receiveResult = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+            while (socket.State == WebSocketState.Open)
             {
                 var str = System.Text.Encoding.Default.GetString(buffer, 0, receiveResult.Count);
 
@@ -268,7 +262,6 @@ namespace SmartContract.Channels
                     // The socket disconnected, need to clear the data
                     Console.WriteLine("The socket disconnected!");
                     _clients.Remove(miner);
-                    // await socket.CloseAsync(WebSocketCloseStatus.InternalServerError, "Disconnected", CancellationToken.None);
                 }
             }
 
