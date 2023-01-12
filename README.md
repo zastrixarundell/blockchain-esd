@@ -232,3 +232,4 @@ After that you need to install the correct openssl which will work on fedora and
 ```bash
 sudo dnf in https://download.copr.fedorainfracloud.org/results/dioni21/compat-openssl10/fedora-37-x86_64/02529460-compat-openssl10/compat-openssl10-1.0.2o-11.fc36.x86_64.rpm
 ```
+
