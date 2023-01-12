@@ -13,7 +13,7 @@ An example blockchain application for FTN NS.
 * [Generating codes via Python](#generating-codes-via-python)
 * [Postman / Requests](#postman--requests)
 * [Fedora Linux 37](#fedora-linux-37)
-* [Ubuntu 22.04 on ARM64](#ubuntu-2204-arm64-documentation)
+* [Ubuntu 22.04 on arm64](#ubuntu-2204-on-arm64)
 * [SSL Support / Reverse proxy](#ssl-support-with-remote-host-and-reverse-proxy)
 
 ## How everything works
@@ -259,11 +259,11 @@ And finally adding the correct env. variable to the system:
 echo 'DOTNET_ROOT="/usr/lib64/dotnet"' | sudo tee -a /etc/environment
 ```
 
-## Ubuntu 22.04 ARM64 documentation
+## Ubuntu 22.04 on arm64
 
 *This was specifically made for a ubuntu setup on Oracle Cloud Ampere CPU.*
 
-Go to the official microsoft [dotnet download page](https://dotnet.microsoft.com/en-us/download/dotnet) and download any supported LTS under `Linux` `Arm64`. At the time of wriring this `.NET 6.0` is the latest LTS. Download `.NET 5.0` as well. 
+Go to the official microsoft [dotnet download page](https://dotnet.microsoft.com/en-us/download/dotnet) and download any supported LTS under `Linux arm64`. At the time of wriring this `.NET 6.0` is the latest LTS. Download `.NET 5.0` as well. 
 
 After downloading both zip files and uploading them to the server, you can generate the `dotnet` folder:
 
