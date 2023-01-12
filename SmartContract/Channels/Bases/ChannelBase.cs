@@ -32,7 +32,7 @@ namespace SmartContract.Channels.Bases
          * This does not close the websocket connection, it should just remove the websocket
          * from the current state of the server.
          */
-        protected abstract void Leave(Miner miner, String? leaveReason = null);
+        protected abstract void Leave(Miner miner);
 
         /**
          * Logic which needs to be ran on the channel when the client joins.
