@@ -42,23 +42,15 @@ After the smart contract is up you can run `./miner.sh` and `./client.sh` multip
 
 ## Generating codes via Python
 
-```python
-from hashlib import sha256
-from random import choices
-from string import ascii_uppercase, digits
+To generate values which yield the accepted blockchain solutions you can use the following code under python:
 
-dict = {}
-
-while len(dict) < 10:
-	generated = ''.join(choices(ascii_uppercase + digits, k = 20))
-	hashed_string = sha256(generated.encode('utf-8')).hexdigest()
-	if hashed_string[0:3] == "000":
-		dict[generated] = hashed_string
-		print("Example data: " + generated)
-		print("Example hash: " + hashed_string + "\n")
+```bash
+$ python3 generate_codes.py
 ```
 
 ## Data examples
+
+An example of genrated information from the python code:
 
     Example data: L9BMZ76TAHIDCZFXP7IH
     Example hash: 000f04a09c3c85d41194fa27f140360946e3c003e26b457ea4908af747e70bf4
