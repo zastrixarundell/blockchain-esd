@@ -1,4 +1,4 @@
-﻿using SmartContract;
+using SmartContract;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -13,7 +13,7 @@ using System.Net.NetworkInformation;
 using System;
 using System.Threading.Tasks;
 
-class Client
+public class Client
 {
     static int Main()
     {
@@ -41,7 +41,7 @@ class Client
         return 0;
     }
 
-    private static string DataInput()
+    public static string DataInput()
     {
         return UserInput(
             7,
@@ -50,7 +50,7 @@ class Client
         );
     }
 
-    private static string IdInput()
+    public static string IdInput()
     {
         return UserInput(
             5,
@@ -59,7 +59,7 @@ class Client
         );
     }
 
-    private static string UserInput(int length, string consoleMessage, string consoleError)
+    public static string UserInput(int length, string consoleMessage, string consoleError)
     {
         string input;
         
