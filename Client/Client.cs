@@ -41,8 +41,6 @@ class Client
         return 0;
     }
 
-    
-
     private static string DataInput()
     {
         return UserInput(
@@ -106,9 +104,13 @@ class Client
     {
         var response = SendRequest("http://localhost:5067/miners", "get", null).Result;
 
-        Console.WriteLine(response.Content);
+        var content = response.Content.ReadAsStringAsync().Result;
 
-        return 0;
+        var jsonObject = JsonObject.Parse(content);
+
+        int number = Convert.ToInt32(jsonObject["miners"].ToString());
+
+        return number;
     }
 
     private static async Task<HttpResponseMessage> SendRequest(string url, string type, string? body)
