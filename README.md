@@ -9,8 +9,8 @@ An example blockchain application for FTN NS.
 * [How everything works](#how-everything-works)
 * [Clients](#clients)
 * [Miners](#miners)
-* [Data examples](#data-examples)
 * [Generating codes via Python](#generating-codes-via-python)
+* [Data examples](#data-examples)
 * [Postman / Requests](#postman--requests)
 * [Fedora Linux 37](#fedora-linux-37)
 * [Ubuntu 22.04 on arm64](#ubuntu-2204-on-arm64)
@@ -31,6 +31,24 @@ Clients are created to just send a JSON body to the server. When the client send
 Miners are connected to the websocket server for instant transmission of data. When a client requests information it is distrubuted/broadcasted accross all of the nodes. The miners will then send the information to the server to verify data. If all of the miners agree with the information then it means everything was correct. If one of the miners does not agree it is reprocessed.
 
 On successful processing, the initial sender is saved and rewarded with the currency. Afterwards the blockchain is appended with the transaction.
+
+## Generating codes via Python
+
+```python
+from hashlib import sha256
+from random import choices
+from string import ascii_uppercase, digits
+
+dict = {}
+
+while len(dict) < 10:
+	generated = ''.join(choices(ascii_uppercase + digits, k = 20))
+	hashed_string = sha256(generated.encode('utf-8')).hexdigest()
+	if hashed_string[0:3] == "000":
+		dict[generated] = hashed_string
+		print("Example data: " + generated)
+		print("Example hash: " + hashed_string + "\n")
+```
 
 ## Data examples
 
@@ -63,24 +81,6 @@ On successful processing, the initial sender is saved and rewarded with the curr
 
     Example data: KTEKLQ53JNCZYI9OHATX
     Example hash: 00098a3a978d7c0a6d725d19c788426a1468c3c7e371469d0507fe18e72cc423
-
-## Generating codes via Python
-
-```python
-from hashlib import sha256
-from random import choices
-from string import ascii_uppercase, digits
-
-dict = {}
-
-while len(dict) < 10:
-	generated = ''.join(choices(ascii_uppercase + digits, k = 20))
-	hashed_string = sha256(generated.encode('utf-8')).hexdigest()
-	if hashed_string[0:3] == "000":
-		dict[generated] = hashed_string
-		print("Example data: " + generated)
-		print("Example hash: " + hashed_string + "\n")
-```
 
 ## Postman / Requests
 
