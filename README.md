@@ -9,8 +9,9 @@ An example blockchain application for FTN NS.
 * [How everything works](#how-everything-works)
 * [Clients](#clients)
 * [Miners](#miners)
-* [Data examples](#data-examples)
+* [Up and running](#up-and-running)
 * [Generating codes via Python](#generating-codes-via-python)
+* [Data examples](#data-examples)
 * [Postman / Requests](#postman--requests)
 * [Fedora Linux 37](#fedora-linux-37)
 * [Ubuntu 22.04 on arm64](#ubuntu-2204-on-arm64)
@@ -32,7 +33,25 @@ Miners are connected to the websocket server for instant transmission of data. W
 
 On successful processing, the initial sender is saved and rewarded with the currency. Afterwards the blockchain is appended with the transaction.
 
+## Up and running
+
+This code is made to be run under Linux and specifically for `.NET 5.0`. As an ease-of-access to start the applications you can run:
+
+`./smart_contract.sh`
+
+After the smart contract is up you can run `./miner.sh` and `./client.sh` multiple times for the miner and client instances respectively.
+
+## Generating codes via Python
+
+To generate values which yield the accepted blockchain solutions you can use the following code under python:
+
+```bash
+$ python3 generate_codes.py
+```
+
 ## Data examples
+
+An example of genrated information from the python code:
 
     Example data: L9BMZ76TAHIDCZFXP7IH
     Example hash: 000f04a09c3c85d41194fa27f140360946e3c003e26b457ea4908af747e70bf4
@@ -63,24 +82,6 @@ On successful processing, the initial sender is saved and rewarded with the curr
 
     Example data: KTEKLQ53JNCZYI9OHATX
     Example hash: 00098a3a978d7c0a6d725d19c788426a1468c3c7e371469d0507fe18e72cc423
-
-## Generating codes via Python
-
-```python
-from hashlib import sha256
-from random import choices
-from string import ascii_uppercase, digits
-
-dict = {}
-
-while len(dict) < 10:
-	generated = ''.join(choices(ascii_uppercase + digits, k = 20))
-	hashed_string = sha256(generated.encode('utf-8')).hexdigest()
-	if hashed_string[0:3] == "000":
-		dict[generated] = hashed_string
-		print("Example data: " + generated)
-		print("Example hash: " + hashed_string + "\n")
-```
 
 ## Postman / Requests
 
