@@ -9,6 +9,7 @@ An example blockchain application for FTN NS.
 * [How everything works](#how-everything-works)
 * [Clients](#clients)
 * [Miners](#miners)
+* [Up and running](#up-and-running)
 * [Generating codes via Python](#generating-codes-via-python)
 * [Data examples](#data-examples)
 * [Postman / Requests](#postman--requests)
