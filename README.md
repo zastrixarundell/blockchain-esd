@@ -32,6 +32,14 @@ Miners are connected to the websocket server for instant transmission of data. W
 
 On successful processing, the initial sender is saved and rewarded with the currency. Afterwards the blockchain is appended with the transaction.
 
+## Up and running
+
+This code is made to be run under Linux and specifically for `.NET 5.0`. As an ease-of-access to start the applications you can run:
+
+`./smart_contract.sh`
+
+After the smart contract is up you can run `./miner.sh` and `./client.sh` multiple times for the miner and client instances respectively.
+
 ## Generating codes via Python
 
 ```python
